@@ -1,0 +1,114 @@
+import socket
+import re
+import math
+import ssl
+import argparse
+import sys
+
+__author__="Zhongxi Wang"
+
+
+def connect_server(isSecure,serverName,portNumber):
+    clientSocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+    if isSecure:
+        clientSocket=ssl.wrap_socket(clientSocket)
+    try:
+        clientSocket.connect((serverName,portNumber))
+    except Exception as e:
+        print("Connection failed")
+        print(e)
+        sys.exit(1)
+    return clientSocket
+
+
+def message_parser(message):
+    '''This method parse the incoming message, and return the solution
+    The incoming message could be "cs5700spring2017 STATUS [a number] [+, -, *, /] [another number]\n"
+    or "cs5700spring2017 [64 byte secret flag] BYE\n", this secret flag would be written to standard output.
+
+    If the incoming message is not in one of these forms, this method would throw an exception
+
+    The returned solution would be either "cs5700spring2017 [a number]\n"
+    or "Done"
+    '''
+    patternOperation=re.compile("cs5700spring2017 STATUS ([0-9]+) ([\+,\-,\*,\/]) ([0-9]+)\n")
+    patternEnd=re.compile("cs5700spring2017 ([a-fA-F0-9]+) BYE\n")
+
+    matchOperation=patternOperation.match(message)
+    matchEnd=patternEnd.match(message)
+    if matchOperation:
+        firstNumber=int(matchOperation.group(1))
+        op=matchOperation.group(2)
+        secondNumber=int(matchOperation.group(3))
+
+        #calculationResult is a string here
+        calculationResult=calculateMath(op,firstNumber,secondNumber)
+        return "cs5700spring2017 "+calculationResult+"\n"
+    elif matchEnd:
+        flag=matchEnd.group(1)
+        print("The secret flag is :"+flag)
+        return "Done"
+    else:
+        raise Exception("This message: "+'"'+message+'"'+" is not recognized")
+
+
+def calculateMath(op,firstNumber,secondNumber):
+    if op=="+":
+        return str(int(firstNumber+secondNumber))
+    elif op=="-":
+        return str(int(firstNumber-secondNumber))
+    elif op=="/":
+        return str(int(math.floor(firstNumber/secondNumber)))
+    elif op=="*":
+        return str(int(firstNumber*secondNumber))
+    else:
+        raise Exception("The operation is not recognized")
+
+
+def send_back_solution(socket, solution):
+    '''Send the solution back to the server, read its feedback, and return this feedback
+    '''
+    socket.send(solution.encode())
+    returnMessage=socket.recv(2048).decode()
+    return returnMessage
+
+
+def loop_for_all_cases(clientSocket,clientMessage):
+    clientSocket.send(clientMessage.encode())
+    receivedMessage = clientSocket.recv(2048).decode()
+    isDone=False;
+    while not isDone:
+        solution=message_parser(receivedMessage)
+        print(solution)
+        if solution=='Done':
+            isDone=True
+        else:
+            receivedMessage=send_back_solution(clientSocket,solution)
+            print(receivedMessage)
+
+
+def main(args):
+    clientSocket=connect_server(args.isSecure,args.host,args.portNumber)
+    try:
+        loop_for_all_cases(clientSocket,'cs5700spring2017 HELLO '+args.NUID+'\n')
+    except Exception as e:
+        print(e)
+        sys.exit(1)
+
+
+if __name__=="__main__":
+    #Parse the input from command line
+    parser=argparse.ArgumentParser(description='Process input')
+    #The default port number for non-ssl connection is 27993
+    parser.add_argument("-p","--portNumber",type=int,default=27993)
+    parser.add_argument("-s","--isSecure",action="store_true")
+    parser.add_argument("host")
+    parser.add_argument("NUID")
+    args=parser.parse_args()
+    if "-p" not in sys.argv and args.isSecure:
+        #The default port number for ssl connection is 27994
+        #if the port number is specified in input, then it will be used
+        args.portNumber=27994
+    main(args)
+
+
