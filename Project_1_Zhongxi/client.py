@@ -54,13 +54,13 @@ def message_parser(message):
 
 def calculateMath(op,firstNumber,secondNumber):
     if op=="+":
-        return str(firstNumber+secondNumber)
+        return str(int(firstNumber+secondNumber))
     elif op=="-":
-        return str(firstNumber-secondNumber)
+        return str(int(firstNumber-secondNumber))
     elif op=="/":
-        return str(math.floor(firstNumber/secondNumber))
+        return str(int(math.floor(firstNumber/secondNumber)))
     elif op=="*":
-        return str(firstNumber*secondNumber)
+        return str(int(firstNumber*secondNumber))
     else:
         raise Exception("The operation is not recognized")
 
@@ -79,10 +79,12 @@ def loop_for_all_cases(clientSocket,clientMessage):
     isDone=False;
     while not isDone:
         solution=message_parser(receivedMessage)
+        print(solution)
         if solution=='Done':
             isDone=True
         else:
             receivedMessage=send_back_solution(clientSocket,solution)
+            print(receivedMessage)
 
 
 def main(args):
