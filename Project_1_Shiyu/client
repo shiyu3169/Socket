@@ -28,33 +28,33 @@ def math(values):
 def main(args):
 
     # default variables
-    port = 27993
+    # port = 27993
     crn = "cs5700spring2017 "
 
     # varibales from command line input
-    hostname = args[-2]
-    nuid = args[-1]
+    #hostname = args[-2]
+    #nuid = args[-1]
 
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-    # Check if '-s' is in input
-    if '-s' in args:
-        port = 27994
-        sock = ssl.wrap_socket(sock)
-
-    # check if port is given in input
-    if '-p' in args:
-        port = int(args[args.index('-p') + 1])
+    # # Check if '-s' is in input
+    # if '-s' in args:
+    #     port = 27994
+    #     sock = ssl.wrap_socket(sock)
+    #
+    # # check if port is given in input
+    # if '-p' in args:
+    #     port = int(args[args.index('-p') + 1])
 
     # Connect the socket to the port where the server is listening
     # print "connect to the server"
-    server_address = (hostname, port)
+    server_address = (args.hostname, args.port)
     # print >> sys.stderr, 'connecting to %s port %s' % server_address
     sock.connect(server_address)
 
     # Send hello message to server
-    hello = crn + "HELLO " + nuid + "\n"
+    hello = crn + "HELLO " + args.nuid + "\n"
     sock.send(hello)
 
     # Receive the Status message from server
@@ -81,12 +81,14 @@ def main(args):
 
 # Initializer
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Do lots of meaningless math over the network!")
-    parser.add_argument("-p", "--port", help="The server port to connect to", type=int, default=27993)
-    parser.add_argument("-s", "--secure", help="Use a secure socket", action='store_true')
-    parser.add_argument("hostname", help="The hostname of the server")
-    parser.add_argument("id", help="The NEU id of the student running the program.  Must have all leading zeros.")
+    #parse cmd inputs
+    parser = argparse.ArgumentParser(description="cmd input")
+    parser.add_argument("-p", "--port", type=int, default=27993)
+    parser.add_argument("-s", "--secure", action='store_true')
+    parser.add_argument("hostname")
+    parser.add_argument("nuid")
     args = parser.parse_args()
-    if "-p" not in sys.argv and args.secure:
-        args.port = 27994
-    main(sys.argv)
+    #cgheck if port is not given in cmd inputs
+    # if "-p" not in sys.argv and args.secure:
+    #     args.port = 27994
+    main(args)
