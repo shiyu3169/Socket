@@ -5,6 +5,7 @@ import sys
 import ssl
 import argparse
 import re
+
 # Math function used to calculate math expressions
 def math(values):
     # Cast string into int
@@ -21,7 +22,7 @@ def math(values):
     elif operator is '/':
         answer = a // b
     else:
-        assert 'operator error'
+        raise Exception("The operation is not recognized")
     return str(answer)
 
 # Main function
@@ -37,6 +38,11 @@ def main(args):
 
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Check if '-s' is in input
+    if args.secure:
+        sock = ssl.wrap_socket(sock)
+        args.port = 27994
 
     # # Check if '-s' is in input
     # if '-s' in args:
@@ -88,7 +94,4 @@ if __name__ == "__main__":
     parser.add_argument("hostname")
     parser.add_argument("nuid")
     args = parser.parse_args()
-    #cgheck if port is not given in cmd inputs
-    # if "-p" not in sys.argv and args.secure:
-    #     args.port = 27994
     main(args)
