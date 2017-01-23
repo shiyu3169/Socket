@@ -1,3 +1,6 @@
+#!/usr/bin/python
+
+
 import socket
 import re
 import math
@@ -46,7 +49,7 @@ def message_parser(message):
         return "cs5700spring2017 "+calculationResult+"\n"
     elif matchEnd:
         flag=matchEnd.group(1)
-        print("The secret flag is :"+flag)
+        print(flag)
         return "Done"
     else:
         raise Exception("This message: "+'"'+message+'"'+" is not recognized")
@@ -79,12 +82,10 @@ def loop_for_all_cases(clientSocket,clientMessage):
     isDone=False;
     while not isDone:
         solution=message_parser(receivedMessage)
-        print(solution)
         if solution=='Done':
             isDone=True
         else:
             receivedMessage=send_back_solution(clientSocket,solution)
-            print(receivedMessage)
 
 
 def main(args):
