@@ -1,8 +1,7 @@
-default:
-	chmod +x ./client
+default: run
+	
 
-tcp:
+run:
+	chmod +x client
 	./client cs5700sp17.ccs.neu.edu 001126974
-
-tls:
 	./client -s cs5700sp17.ccs.neu.edu 001126974

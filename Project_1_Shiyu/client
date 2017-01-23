@@ -81,4 +81,12 @@ def main(args):
 
 # Initializer
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Do lots of meaningless math over the network!")
+    parser.add_argument("-p", "--port", help="The server port to connect to", type=int, default=27993)
+    parser.add_argument("-s", "--secure", help="Use a secure socket", action='store_true')
+    parser.add_argument("hostname", help="The hostname of the server")
+    parser.add_argument("id", help="The NEU id of the student running the program.  Must have all leading zeros.")
+    args = parser.parse_args()
+    if "-p" not in sys.argv and args.secure:
+        args.port = 27994
     main(sys.argv)
