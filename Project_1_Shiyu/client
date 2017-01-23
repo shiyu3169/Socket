@@ -1,0 +1,151 @@
+#!/usr/bin/python
+
+import socket
+import sys
+import ssl
+import argparse
+import re
+
+# Create a TCP/IP socket
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+#crn of networking course
+crn = "cs5700spring2017 "
+
+# Connect function used to connect to the server
+def connect():
+    # Check if '-s' is in input
+    if args.secure:
+        global sock
+        sock = ssl.wrap_socket(sock)
+        args.port = 27994
+
+    # Connect the socket to the port where the server is listening
+    # print "connect to the server"
+    server_address = (args.hostname, args.port)
+    # print >> sys.stderr, 'connecting to %s port %s' % server_address
+    sock.connect(server_address)
+
+# Math function used to calculate math expressions
+def math(one, two, operator):
+
+    if operator is '+':
+        answer = one + two
+    elif operator is '-':
+        answer = one - two
+    elif operator is '*':
+        answer = one * two
+    elif operator is '/':
+        answer = one // two
+    else:
+        raise Exception("The operation is not recognized")
+    return str(answer)
+
+# Parse the received message
+def message_parse(message):
+
+    # a math pattern received from server
+    mathPattern = re.compile("cs5700spring2017 STATUS ([0-9]+) ([\+,\-,\*,\/]) ([0-9]+)\n")
+
+    # a bye pattern received from server
+    byePattern = re.compile("cs5700spring2017 ([a-fA-F0-9]+) BYE\n")
+
+    # Keep parsing incmoing message until we break it by receiving Bye message
+    while 1:
+        #the match of message
+        matchMath = mathPattern.match(message)
+        matchBye = byePattern.match(message)
+
+        if matchMath:
+            one = int(matchMath.group(1))
+            two = int(matchMath.group(3))
+            operator = matchMath.group(2)
+            answer = math(one, two, operator)
+            result = crn + answer + " \n"
+            sock.send(result)
+            message = sock.recv(1024)
+        elif matchBye:
+            # If the replay message is BYE, close the socket
+            flag = matchBye.group(1)
+            print flag  # print the secret flag
+            sock.close()
+            break;
+        else:
+            raise Exception("The message from server is in incorrect form")
+
+# Main function
+def main(args):
+
+    # default variables
+    # port = 27993
+    # crn = "cs5700spring2017 "
+
+    # varibales from command line input
+    #hostname = args[-2]
+    #nuid = args[-1]
+
+    # # Create a TCP/IP socket
+    # sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # # Check if '-s' is in input
+    # if args.secure:
+    #     sock = ssl.wrap_socket(sock)
+    #     args.port = 27994
+
+    # # Check if '-s' is in input
+    # if '-s' in args:
+    #     port = 27994
+    #     sock = ssl.wrap_socket(sock)
+    #
+    # # check if port is given in input
+    # if '-p' in args:
+    #     port = int(args[args.index('-p') + 1])
+
+    # Connect the socket to the port where the server is listening
+    # print "connect to the server"
+    # server_address = (args.hostname, args.port)
+    # print >> sys.stderr, 'connecting to %s port %s' % server_address
+    # sock.connect(server_address)
+
+    # Connect to the server
+    connect()
+
+    # Send hello message to server
+    hello = crn + "HELLO " + args.nuid + "\n"
+    sock.send(hello)
+
+    # Receive the Status message from server
+    message = sock.recv(256)
+    # values = message.split()
+    # print status
+
+    # Parse the incoming message from server
+    message_parse(message)
+
+    # # Calculate result value
+    # while (len(values) > 0):
+    #     # If the replay message is BYE, close the socket
+    #     if (values[2] == 'BYE'):
+    #         print values[1] # print the secret flag
+    #         sock.close()
+    #         break
+    #
+    #     # Calculate
+    #     else:
+    #         result = crn + math(values) + " \n"
+    #         sock.send(result)
+    #         status = sock.recv(1024)
+    #         # print status
+    #         values = status.split()
+
+
+# Initializer
+if __name__ == "__main__":
+    #parse cmd inputs
+    parser = argparse.ArgumentParser(description="cmd input")
+    parser.add_argument("-p", "--port", type=int, default=27993)
+    parser.add_argument("-s", "--secure", action='store_true')
+    parser.add_argument("hostname")
+    parser.add_argument("nuid")
+    args = parser.parse_args()
+    main(args)
