@@ -15,7 +15,7 @@ crn = "cs5700spring2017 "
 # Connect function used to connect to the server
 def connect():
     # Check if '-s' is in input
-    if args.secure:
+    if "-p" not in sys.argv and args.secure:
         global sock
         sock = ssl.wrap_socket(sock)
         args.port = 27994
