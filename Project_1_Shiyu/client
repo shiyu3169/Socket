@@ -19,7 +19,8 @@ def connect():
         global sock
         sock = ssl.wrap_socket(sock)
         args.port = 27994
-
+    elif args.secure:
+    	sock = ssl.wrap_socket(sock)
     # Connect the socket to the port where the server is listening
     # print "connect to the server"
     server_address = (args.hostname, args.port)
