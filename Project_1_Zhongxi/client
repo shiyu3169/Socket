@@ -12,6 +12,8 @@ __author__="Zhongxi Wang"
 
 
 def connect_server(isSecure,serverName,portNumber):
+    '''This method initiate the TCP connection to the server, it returns the socket configured for
+    this connection'''
     clientSocket=socket.socket(socket.AF_INET,socket.SOCK_STREAM)
     if isSecure:
         clientSocket=ssl.wrap_socket(clientSocket)
@@ -56,6 +58,7 @@ def message_parser(message):
 
 
 def calculateMath(op,firstNumber,secondNumber):
+    '''This method does simple calculation'''
     if op=="+":
         return str(int(firstNumber+secondNumber))
     elif op=="-":
@@ -77,6 +80,8 @@ def send_back_solution(socket, solution):
 
 
 def loop_for_all_cases(clientSocket,clientMessage):
+    '''This method starts a loop in which the messages from server is read, the result is returned.
+    This loop does not stop until the flag is received.'''
     clientSocket.send(clientMessage.encode())
     receivedMessage = clientSocket.recv(2048).decode()
     isDone=False;
