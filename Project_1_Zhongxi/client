@@ -91,7 +91,7 @@ def loop_for_all_cases(clientSocket,clientMessage):
             isDone=True
         else:
             receivedMessage=send_back_solution(clientSocket,solution)
-
+    clientSocket.close()
 
 def main(args):
     clientSocket=connect_server(args.isSecure,args.host,args.portNumber)
