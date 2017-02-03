@@ -9,7 +9,8 @@ class CookieJar:
 
 
     # ToDo: Use @dispatch to realize overloading here
-    def add_cookie_from_string(self,str):
+    # Actually not sure if this methodi is needed
+    # def add_cookie_from_string(self,str):
 
 
     def retrieve_cookie(self,key):
@@ -19,3 +20,4 @@ class CookieJar:
         del self.jar[key]
 
     def change_cookie(self,key,newValue):
+        self.jar[key]=newValue
