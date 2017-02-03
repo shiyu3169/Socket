@@ -1,3 +1,5 @@
+__author__="Zhongxi Wang"
+
 
 class CookieJar:
     def __init__(self):
