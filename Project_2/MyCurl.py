@@ -20,7 +20,7 @@ class MyCurl:
         self.history.add(URL)
         self.socket.sendall(str(message).encode())
         response=ServerMessage(self.socket)
-        self.add_new_cookies(message)
+        self.add_new_cookies(response)
         return response
 
 
