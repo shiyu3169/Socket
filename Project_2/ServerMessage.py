@@ -13,7 +13,15 @@ class ServerMessage:
 		self.status_code = None
 		self.status = ""
 		self.cookieJar = CookieJar()
-		#TODO: parse the received message
+
+		#TODO：May be changed to r
+		file = socket.get_socket().makefile("rb")
+
+		self.readHeader(file)
+		bodyLength = int(self.getHeader("content-length"))
+		self.readBody(file, bodyLength)
+
+        file.close()
 
 	def readHeader(self, file):
 		# read the first line to get status info
@@ -48,7 +56,25 @@ class ServerMessage:
 	def addHeader(self, key, value):
 
 		if key == "set-cookie":
-			self.cookieJar.add_cookie_from_string
+			self.cookieJar.add_cookie_from_string(value)
+
+		#TODO: maybe useless
+		if key in self.headers.keys():
+			self.headers[key] = self.header[key] +", " + value
+		else:
+			self.headers[key] = value
+
+	def readBody(self, fileLength, file):
+		body = ""
+		#TODO: may be useless as well
+		while fileLength > 0:
+			data = file.read(fileLength).decode("utf-8")
+			fileLength -= len(data)
+			body += data
+		self.body = body
+
+	def getHeader(self, key):
+		return self.headers[key]
 
 
 
