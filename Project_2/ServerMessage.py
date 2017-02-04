@@ -71,7 +71,10 @@ class ServerMessage:
 		self.body = body
 
 	def getHeader(self, key):
-		return self.headers[key]
+         if key not in self.headers:
+            raise Exception
+         else:
+	        return self.headers[key]
 
 
 
