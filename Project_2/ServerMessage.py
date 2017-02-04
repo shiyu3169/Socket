@@ -22,7 +22,6 @@ class ServerMessage:
     def readHeader(self, file):
         # read the first line to get status info
         statusLine = file.readline().decode("utf-8").strip()
-
         version, status_code, status = statusLine.split(None,2)
         self.version = str(version)
         self.status_code = str(status_code)

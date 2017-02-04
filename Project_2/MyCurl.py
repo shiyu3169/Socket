@@ -18,7 +18,7 @@ class MyCurl:
 
     def request(self,method, URL, headers=None, body="" ):
         message=ClientMessage(method,URL,headers,body)
-        #message.headers['Cookie']=str(self.cookieJar)
+        message.headers['Cookie']=str(self.cookieJar)
         self.history.add(URL)
         print(str(message))
         self.socket.sendall(str(message).encode())
@@ -57,7 +57,8 @@ if __name__=="__main__":
 
 
     csrf_token=test2.cookieJar.get_cookie('csrftoken')
-    form=UrlEncodedForm({"username":"001156814","password":"DVO8KW2F", "csrfmiddlewaretoken":csrf_token})
+    #form=UrlEncodedForm({"username":"001156814","password":"DVO8KW2F", "csrfmiddlewaretoken":csrf_token})
+    form="username=001156814&password=DVO8KW2F&csrfmiddlewaretoken="+csrf_token
     headers= {
             "content-type": "application/x-www-form-urlencoded"
     }
