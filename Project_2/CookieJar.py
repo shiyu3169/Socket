@@ -24,7 +24,7 @@ class CookieJar:
             self.add_cookie(key,value)
 
 
-    def retrieve_cookie(self,key):
+    def get_cookie(self,key):
         return self.jar[key]
 
     def delete_cookie(self,key):
