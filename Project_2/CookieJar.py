@@ -1,7 +1,12 @@
 __author__="Zhongxi Wang"
 
+import re
+
+
+PATTERN=re.compile("(.?)=(.?);")
 
 class CookieJar:
+
     def __init__(self):
         '''The jar is a cache to store cookies(key, value pairs)'''
         self.jar={}
@@ -11,8 +16,9 @@ class CookieJar:
 
 
     # ToDo: Use @dispatch to realize overloading here
-    # Actually not sure if this methodi is needed
-    # def add_cookie_from_string(self,str):
+    def add_cookie_from_string(self,str):
+        if PATTERN.search(str):
+            self.add_cookie(PATTERN.group(1),PATTERN.group(2))
 
 
     def retrieve_cookie(self,key):
