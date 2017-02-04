@@ -67,6 +67,25 @@ class ServerMessage:
             body += data
         self.body = body
 
+    def readChunkedBody(self, file):
+        body= ""
+        while 1:
+            hexsize = file.readline().decode("utf-8")
+            size = int(hexsize, 16)
+            if size == 0:
+                break
+            data = ""
+            #TODO: maybe useless
+            while size > 0:
+                line = file.read(size).decode("utf-8")
+                size -= len(line)
+                data += line
+            body += data
+            file.read(2)
+
+        self.body = body
+        self._read_headers(file)
+
     def getHeader(self, key):
         if key not in self.headers:
             raise Exception
