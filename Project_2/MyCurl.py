@@ -33,7 +33,7 @@ class MyCurl:
 
 
     def add_new_cookies(self,message):
-        for cookie in message.CookieJar:
+        for cookie in message.cookieJar:
             self.cookieJar.add_cookie(cookie)
 
     def is_visited_or_Not(self,link):

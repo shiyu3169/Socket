@@ -25,9 +25,9 @@ class ServerMessage:
 		statusLine = file.readline().decode("utf-8")
 
 		version, status_code, status = statusLine.split()
-		self.version = version
-		self.status_code = status_code
-		self.status = status
+		self.version = str(version)
+		self.status_code = str(status_code)
+		self.status = str(status)
 
 		#start reading 2nd line of header
 		key = ""
@@ -39,15 +39,15 @@ class ServerMessage:
 				break
 
 			#remove leading space
-			sLine = line.strip()
+			sLine = str(line.strip())
 
 			#TODO: may be uselss
 			if line[0] is " ":
-				self.addHeader(key.lower(), sLine)
+				self.addHeader(str(key.lower()), sLine)
 				continue
 
 			key, value = sLine.split(":", 1)
-			self.addHeader(key.lower(), value)
+			self.addHeader(str(key.lower()), value)
 
 	def addHeader(self, key, value):
 
@@ -56,9 +56,9 @@ class ServerMessage:
 
 		#TODO: maybe useless
 		if key in self.headers.keys():
-			self.headers[key] = self.header[key] +", " + value
+			self.headers[key] = str(self.header[key]) +", " + str(value)
 		else:
-			self.headers[key] = value
+			self.headers[key] = str(value)
 
 	def readBody(self, file, fileLength):
 		body = ""
