@@ -4,7 +4,7 @@ from ClientMessage import ClientMessage
 from ServerMessage import ServerMessage
 import socket
 from CookieJar import CookieJar
-from UrlEncodedForm import UrlEncodedForm
+
 #import urllib
 
 class MyCurl:

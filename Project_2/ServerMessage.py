@@ -14,18 +14,24 @@ class ServerMessage:
         self.cookieJar = CookieJar()
 
         socketFile = mySocket.makefile("rb")
+        self.getStatus(socketFile)
         self.readHeader(socketFile)
-        bodyLength = int(self.getHeader("content-length"))
-        self.readBody(socketFile, bodyLength)
+        if "transfer-encoding" in self.headers and self.getHeader("transfer-encoding") == "chunked":
+            self.readChunkedBody(socketFile)
+        else:
+            bodyLength = int(self.getHeader("content-length"))
+            self.readBody(socketFile, bodyLength)
         socketFile.close()
 
-    def readHeader(self, file):
+    def getStatus(self, file):
         # read the first line to get status info
         statusLine = file.readline().decode("utf-8").strip()
-        version, status_code, status = statusLine.split(None,2)
+        version, status_code, status = statusLine.split(None, 2)
         self.version = str(version)
         self.status_code = str(status_code)
         self.status = str(status)
+
+    def readHeader(self, file):
 
         #start reading 2nd line of header
         key = ""
@@ -83,7 +89,7 @@ class ServerMessage:
             file.read(2)
 
         self.body = body
-        self._read_headers(file)
+        self.readHeader(file)
 
     def getHeader(self, key):
         if key not in self.headers:
