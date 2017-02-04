@@ -14,8 +14,8 @@ class ClientMessage:
         self.method=method
         self.URL=URL
         self.body=body
-        self.version=self.HTTP_VERSION
-        self.headers=self.HTTP_HEADERS
+        self.version=ClientMessage.HTTP_VERSION
+        self.headers=ClientMessage.HTTP_HEADERS.copy()
         self.headers.update(headers)
 
         #ToDo:This one may be useless
@@ -29,9 +29,9 @@ class ClientMessage:
         for key in self.headers:
             headers.append("{}:{}".format(key,self.headers[key]));
 
-        headersLines="\n".join(headers)
+        headersLines="\r\n".join(headers)
 
-        result="\n".join([firstLine,headersLines,self.body])+"\n"
+        result="\r\n".join([firstLine,headersLines,"",self.body])+"\r\n"
 
         return result
 

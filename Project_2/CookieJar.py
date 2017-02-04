@@ -24,7 +24,7 @@ class CookieJar:
             self.add_cookie(key,value)
 
 
-    def retrieve_cookie(self,key):
+    def get_cookie(self,key):
         return self.jar[key]
 
     def delete_cookie(self,key):
@@ -38,4 +38,4 @@ class CookieJar:
         return self.jar
 
     def __str__(self):
-        return ";".join(["{}={}".format(cookie.key, cookie.value) for cookie in self.jar])
+        return ";".join(["{}={}".format(key, self.jar[key]) for key in self.jar])

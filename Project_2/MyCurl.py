@@ -4,6 +4,8 @@ from ClientMessage import ClientMessage
 from ServerMessage import ServerMessage
 import socket
 from CookieJar import CookieJar
+from UrlEncodedForm import UrlEncodedForm
+#import urllib
 
 class MyCurl:
 
@@ -18,6 +20,7 @@ class MyCurl:
         message=ClientMessage(method,URL,headers,body)
         message.headers['Cookie']=str(self.cookieJar)
         self.history.add(URL)
+        print(str(message))
         self.socket.sendall(str(message).encode())
         response=ServerMessage(self.socket)
         self.add_new_cookies(response)
@@ -28,8 +31,8 @@ class MyCurl:
             return self.request("GET",URL,headers)
 
 
-    def post(self,URL,body=None, headers={}):
-            return self.request("POST",URL,headers)
+    def post(self,URL,headers={},body=""):
+            return self.request("POST",URL,headers,body)
 
 
     def add_new_cookies(self,message):
@@ -50,4 +53,14 @@ if __name__=="__main__":
     #test2
     Destination2=("cs5700sp17.ccs.neu.edu",80)
     test2=MyCurl(Destination2)
-    test2.get("http://cs5700sp17.ccs.neu.edu/accounts/login/?next=/fakebook/")
+    test2.get("/accounts/login/?next=/fakebook/")
+
+
+    csrf_token=test2.cookieJar.get_cookie('csrftoken')
+    #form=UrlEncodedForm({"username":"001156814","password":"DVO8KW2F", "csrfmiddlewaretoken":csrf_token})
+    form="username=001156814&password=DVO8KW2F&csrfmiddlewaretoken="+csrf_token
+    headers= {
+            "content-type": "application/x-www-form-urlencoded"
+    }
+    loginResponse=test2.post("/accounts/login/?next=/fakebook/",headers,str(form))
+    print(loginResponse)
