@@ -33,9 +33,9 @@ class CookieJar:
     def change_cookie(self,key,newValue):
         self.jar[key]=newValue
 
-    def __iter__(self):
-        for key in self.jar:
-            yield self.jar[key]
+
+    def getAll(self):
+        return self.jar
 
     def __str__(self):
         return ";".join(["{}={}".format(cookie.key, cookie.value) for cookie in self.jar])

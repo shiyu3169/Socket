@@ -33,8 +33,9 @@ class MyCurl:
 
 
     def add_new_cookies(self,message):
-        for cookie in message.cookieJar:
-            self.cookieJar.add_cookie(cookie)
+        jar =message.cookieJar.getAll()
+        for key in jar:
+            self.cookieJar.add_cookie(key,jar[key])
 
     def is_visited_or_Not(self,link):
         return link in self.history
