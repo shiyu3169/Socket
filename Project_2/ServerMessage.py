@@ -1,12 +1,11 @@
 from CookieJar import CookieJar
+import socket
 
 
 class ServerMessage:
-	"""
-	this is a model that parsing received message from HTTP server
-	"""
+	"""this is a model that parsing received message from HTTP server"""
 
-	def __init__(self, socket):
+	def __init__(self, mySocket):
 		self.version = ""
 		self.headers = {}
 		self.body = ""
@@ -14,18 +13,16 @@ class ServerMessage:
 		self.status = ""
 		self.cookieJar = CookieJar()
 
-		#TODO：May be changed to r
-		file = socket.get_socket().makefile("rb")
+		file = mySocket.makefile("rb")
 
 		self.readHeader(file)
 		bodyLength = int(self.getHeader("content-length"))
 		self.readBody(file, bodyLength)
-
-        file.close()
+		file.close()
 
 	def readHeader(self, file):
 		# read the first line to get status info
-		statusLine = file.readlline().decode("utf-8")
+		statusLine = file.readline().decode("utf-8")
 
 		version, status_code, status = statusLine.split()
 		self.version = version
@@ -38,7 +35,6 @@ class ServerMessage:
 		while(1):
 			line = file.readline().decode("utf-8")
 
-			# TODO: if head ends
 			if ":" not in line:
 				break
 
@@ -75,6 +71,10 @@ class ServerMessage:
 
 	def getHeader(self, key):
 		return self.headers[key]
+
+
+
+
 
 
 
