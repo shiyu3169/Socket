@@ -1,3 +1,5 @@
+__author__="Shiyu Wang"
+
 from CookieJar import CookieJar
 import socket
 
