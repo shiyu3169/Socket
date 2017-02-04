@@ -43,11 +43,12 @@ class ServerMessage:
 
 			#TODO: may be uselss
 			if line[0] is " ":
-				self.addHeader(str(key.lower()), sLine)
+				self.addHeader(str(key.lower()), str(sLine))
 				continue
 
 			key, value = sLine.split(":", 1)
-			self.addHeader(str(key.lower()), value)
+
+			self.addHeader(str(key.lower()), str(value.strip()))
 
 	def addHeader(self, key, value):
 
@@ -56,7 +57,7 @@ class ServerMessage:
 
 		#TODO: maybe useless
 		if key in self.headers.keys():
-			self.headers[key] = str(self.header[key]) +", " + str(value)
+			self.headers[key] = str(self.headers[key]) +", " + str(value)
 		else:
 			self.headers[key] = str(value)
 

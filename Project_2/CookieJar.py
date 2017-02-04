@@ -3,7 +3,7 @@ __author__="Zhongxi Wang"
 import re
 
 
-PATTERN=re.compile("(.?)=(.?);")
+PATTERN=re.compile("(.*?)=(.*?);")
 
 class CookieJar:
 
@@ -17,8 +17,11 @@ class CookieJar:
 
     # ToDo: Use @dispatch to realize overloading here
     def add_cookie_from_string(self,str):
-        if PATTERN.search(str):
-            self.add_cookie(PATTERN.group(1),PATTERN.group(2))
+        matchPattern=PATTERN.search(str)
+        if matchPattern:
+            key=matchPattern.group(1)
+            value=matchPattern.group(2)
+            self.add_cookie(key,value)
 
 
     def retrieve_cookie(self,key):
@@ -32,7 +35,7 @@ class CookieJar:
 
     def __iter__(self):
         for key in self.jar:
-            yield self.cache[key]
+            yield self.jar[key]
 
     def __str__(self):
         return ";".join(["{}={}".format(cookie.key, cookie.value) for cookie in self.jar])

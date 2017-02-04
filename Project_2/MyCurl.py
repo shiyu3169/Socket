@@ -42,6 +42,13 @@ class MyCurl:
 
 
 if __name__=="__main__":
-    Destination=("cs5700sp17.ccs.neu.edu",80)
-    test=MyCurl(Destination)
-    test.get("http://cs5700sp17.ccs.neu.edu/")
+    #test1 works so far
+    '''
+    Destination1=("cs5700sp17.ccs.neu.edu",80)
+    test1=MyCurl(Destination1)
+    test1.get("http://cs5700sp17.ccs.neu.edu/")
+    '''
+    #test2
+    Destination2=("cs5700sp17.ccs.neu.edu",80)
+    test2=MyCurl(Destination2)
+    test2.get("http://cs5700sp17.ccs.neu.edu/accounts/login/?next=/fakebook/")
