@@ -60,7 +60,7 @@ class ServerMessage:
 		else:
 			self.headers[key] = value
 
-	def readBody(self, fileLength, file):
+	def readBody(self, file, fileLength):
 		body = ""
 		#TODO: may be useless as well
 		while fileLength > 0:
