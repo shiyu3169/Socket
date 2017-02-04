@@ -1,54 +1,107 @@
+__author__="Shiyu Wang"
+
 from CookieJar import CookieJar
+import socket
 
 
 class ServerMessage:
-	"""
-	this is a model that parsing received message from HTTP server
-	"""
+    """this is a model that parsing received message from HTTP server"""
 
-	def __init__(self, socket):
-		self.version = ""
-		self.headers = {}
-		self.body = ""
-		self.status_code = None
-		self.status = ""
-		self.cookieJar = CookieJar()
-		#TODO: parse the received message
+    def __init__(self, mySocket):
+        self.version = ""
+        self.headers = {}
+        self.body = ""
+        self.status_code = None
+        self.status = ""
+        self.cookieJar = CookieJar()
 
-	def readHeader(self, file):
-		# read the first line to get status info
-		statusLine = file.readlline().decode("utf-8")
+        socketFile = mySocket.makefile("rb")
+        self.getStatus(socketFile)
+        self.readHeader(socketFile)
+        if "transfer-encoding" in self.headers and self.getHeader("transfer-encoding") == "chunked":
+            self.readChunkedBody(socketFile)
+        else:
+            bodyLength = int(self.getHeader("content-length"))
+            self.readBody(socketFile, bodyLength)
+        socketFile.close()
 
-		version, status_code, status = statusLine.split()
-		self.version = version
-		self.status_code = status_code
-		self.status = status
+    def getStatus(self, file):
+        # read the first line to get status info
+        statusLine = file.readline().decode("utf-8").strip()
+        version, status_code, status = statusLine.split(None, 2)
+        self.version = str(version)
+        self.status_code = str(status_code)
+        self.status = str(status)
 
-		#start reading 2nd line of header
-		key = ""
+    def readHeader(self, file):
 
-		while(1):
-			line = file.readline().decode("utf-8")
+        #start reading 2nd line of header
+        key = ""
 
-			# TODO: if head ends
-			if ":" not in line:
-				break
+        while True:
+            line = file.readline().decode("utf-8")
 
-			#remove leading space
-			sLine = line.strip()
+            if ":" not in line:
+                break
+            #remove leading space
+            sLine = str(line.strip())
 
-			#TODO: may be uselss
-			if line[0] is " ":
-				self.addHeader(key.lower(), sLine)
-				continue
+            #TODO: may be uselss
+            if line[0] is " ":
+                self.addHeader(str(key.lower()), str(sLine))
+                continue
+            key, value = sLine.split(":", 1)
 
-			key, value = sLine.split(":", 1)
-			self.addHeader(key.lower(), value)
+            self.addHeader(str(key.lower()), str(value.strip()))
 
-	def addHeader(self, key, value):
+    def addHeader(self, key, value):
 
-		if key == "set-cookie":
-			self.cookieJar.add_cookie_from_string
+        if key == "set-cookie":
+            self.cookieJar.add_cookie_from_string(value)
+
+        #TODO: maybe useless
+        if key in self.headers.keys():
+            self.headers[key] = str(self.headers[key]) +", " + str(value)
+        else:
+            self.headers[key] = str(value)
+
+    def readBody(self, file, fileLength):
+        body = ""
+        #TODO: may be useless as well
+        while fileLength > 0:
+            data = file.read(fileLength).decode("utf-8")
+            fileLength -= len(data)
+            body += data
+        self.body = body
+
+    def readChunkedBody(self, file):
+        body= ""
+        while 1:
+            hexsize = file.readline().decode("utf-8")
+            size = int(hexsize, 16)
+            if size == 0:
+                break
+            data = ""
+            #TODO: maybe useless
+            while size > 0:
+                line = file.read(size).decode("utf-8")
+                size -= len(line)
+                data += line
+            body += data
+            file.read(2)
+
+        self.body = body
+        self.readHeader(file)
+
+    def getHeader(self, key):
+        if key not in self.headers:
+            raise Exception
+        else:
+            return self.headers[key]
+
+
+
+
 
 
 
