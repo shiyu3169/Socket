@@ -5,8 +5,6 @@ from ServerMessage import ServerMessage
 import socket
 from CookieJar import CookieJar
 
-#import urllib
-
 class MyCurl:
 
     def __init__(self,dest):
@@ -57,10 +55,15 @@ if __name__=="__main__":
 
 
     csrf_token=test2.cookieJar.get_cookie('csrftoken')
-    #form=UrlEncodedForm({"username":"001156814","password":"DVO8KW2F", "csrfmiddlewaretoken":csrf_token})
     form="username=001156814&password=DVO8KW2F&csrfmiddlewaretoken="+csrf_token
     headers= {
             "content-type": "application/x-www-form-urlencoded"
     }
     loginResponse=test2.post("/accounts/login/?next=/fakebook/",headers,str(form))
-    print(loginResponse)
+    print(loginResponse.headers)
+
+    print(test2.get("/fakebook/").headers)
+
+    print(test2.get("/fakebook/294230082/").body)
+
+
