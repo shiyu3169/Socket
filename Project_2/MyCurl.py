@@ -40,8 +40,6 @@ class MyCurl:
     def is_visited_or_Not(self,link):
         return link in self.history
 
-
-
 if __name__=="__main__":
     #test1 works so far
     '''
