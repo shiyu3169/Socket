@@ -94,6 +94,7 @@ class Crawler:
         while len(self.frontier)>0 and len(self.flags)<5 :
             url=self.frontier.pop()
             response=self.curl.get(url)
+            print(response.status_code)
             self.response_processor(url,response)
 
 

@@ -66,8 +66,8 @@ if __name__=="__main__":
     loginResponse=test2.post("/accounts/login/?next=/fakebook/",headers,str(form))
     print(loginResponse.headers)
 
-    print(test2.get("/fakebook/").headers)
+    print(test2.get("http://cs5700sp17.ccs.neu.edu/fakebook/").headers)
 
-    print(test2.get("/fakebook/294230082/").headers)
+    print(test2.get("/fakebook/294230082/").status_code)
 
 
