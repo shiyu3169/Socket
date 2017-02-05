@@ -33,7 +33,7 @@ class Crawler:
         filteredLinks = set()
         for link in links:
             if link not in filteredLinks and not self.curl.is_visited_or_Not(link):
-                filteredLinks.add(link)
+                filteredLinks.add(str(link))
         return filteredLinks
 
     def findLinks(self, body):
@@ -96,7 +96,6 @@ class Crawler:
         while len(self.frontier)>0 and len(self.flags)<5 :
             url=self.frontier.pop()
             response=self.curl.get(url)
-            print(response.status_code)
             self.response_processor(url,response)
 
 

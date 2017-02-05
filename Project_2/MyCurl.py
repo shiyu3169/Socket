@@ -18,7 +18,6 @@ class MyCurl:
         message=ClientMessage(method,URL,headers,body)
         message.headers['Cookie']=str(self.cookieJar)
         self.history.add(URL)
-        print(str(message))
         self.socket.sendall(str(message).encode())
         response=ServerMessage(self.socket)
         self.add_new_cookies(response)
