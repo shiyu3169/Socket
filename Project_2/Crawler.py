@@ -1,6 +1,6 @@
 import re
 import MyCurl
-
+import argparse
 
 
 class HTTP_STATUS:
@@ -18,6 +18,9 @@ class Crawler:
 
 
     LOG_IN_PAGE="/accounts/login/?next=/fakebook/"
+
+
+
 
     def __init__(self):
         self.frontier = set()
@@ -40,7 +43,6 @@ class Crawler:
         for link in links:
             if link not in links and not self.curl.is_visited_or_Not(link):
                 self.frontier.add(link)
-
 
 
     def login(self, username, password):
@@ -85,3 +87,17 @@ class Crawler:
             self.frontier.add(link)
         for flag in all_flags:
             self.flags.add(flag)
+
+
+    def crawl(self,username,password):
+        self.login(username,password)
+        while len(self.frontier)>0 and len(self.flags)<5 :
+            url=self.frontier.pop()
+            response=self.curl.get(url)
+            self.response_processor(url,response)
+
+    def main(self):
+
+
+
+
