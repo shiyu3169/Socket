@@ -60,11 +60,10 @@ class Crawler:
     def response_processor(self, URL, response):
         #status code=200
         if response.status_code == HTTP_STATUS.OK:
-            '''ToDo:body_processor'''
+            self.body_processor(response)
 
         #status code=403 or 404
         #if response.status_code == HTTP_STATUS.FORBIDDEN or response.status_code == HTTP_STATUS.NOT_FOUND:
-
 
         #status code=301 or 302
         if response.status_code ==  HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY
@@ -82,3 +81,7 @@ class Crawler:
         response_body=response.body
         all_links=self.findLinks(response_body)
         all_flags=self.findFlags(response_body)
+        for link in all_links:
+            self.frontier.add(link)
+        for flag in all_flags:
+            self.flags.add(flag)
