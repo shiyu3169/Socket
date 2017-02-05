@@ -28,36 +28,36 @@ class Crawler:
         self.dest = ("cs5700sp17.ccs.neu.edu",80)
         self.curl = MyCurl(self.dest)
 
+    def filterLinks(self, links):
+        filteredLinks = []
+        for link in links:
+            if link not in filteredLinks and not self.curl.is_visited_or_Not(link):
+                filteredLinks.add(link)
+        return filteredLinks
+
     def findLinks(self, body):
         pattern = re.compile(r'<a href=\"(/fakebook/[a-z0-9/]+)\">')
         links = pattern.findall(body)
         # Find a new url(have not been visited or found), then add it to urls
-        return links
+        return self.filterLinks(links)
 
     def findFlags(self, body):
         pattern = re.compile(r"<h2 class='secret_flag' style=\\")
         flags = pattern.findall(body)
         return flags
 
-    def filterLinks(self, links):
-        for link in links:
-            if link not in links and not self.curl.is_visited_or_Not(link):
-                self.frontier.add(link)
-
 
     def login(self, username, password):
-        form="username="+username+"&password="+password
+        form = "username=" + username + "&password=" + password
         self.curl.get(Crawler.LOG_IN_PAGEG)
-        csrf_token=self.curl.get_cookie('csrftoken')
-        form+=("&csrfmiddlewaretoken="+csrf_token)
-        #ToDo:probably useless
-        headers={
+        csrf_token = self.curl.get_cookie('csrftoken')
+        form += ("&csrfmiddlewaretoken=" + csrf_token)
+        # ToDo:probably useless
+        headers = {
             "content-type": "application/x-www-form-urlencoded"
         }
-        loginResponse=self.curl.post(Crawler.LOG_IN_PAGE,headers,str(form))
-        self.response_processor(Crawler.LOG_IN_PAGE,loginResponse)
-
-
+        loginResponse = self.curl.post(Crawler.LOG_IN_PAGE, headers, str(form))
+        self.response_processor(Crawler.LOG_IN_PAGE, loginResponse)
 
     def response_processor(self, URL, response):
         #status code=200
