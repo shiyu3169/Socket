@@ -41,6 +41,10 @@ class MyCurl:
     def is_visited_or_Not(self,link):
         return link in self.history
 
+
+    def get_cookie(self,str):
+        return self.cookieJar.get_cookie(str)
+
 if __name__=="__main__":
     #test1 works so far
     '''
@@ -64,6 +68,6 @@ if __name__=="__main__":
 
     print(test2.get("/fakebook/").headers)
 
-    print(test2.get("/fakebook/294230082/").body)
+    print(test2.get("/fakebook/294230082/").headers)
 
 
