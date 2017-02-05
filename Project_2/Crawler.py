@@ -1,6 +1,7 @@
 import re
-from MyCurl import MyCurl
 import argparse
+
+from MyCurl import MyCurl
 
 
 class HTTP_STATUS:
@@ -29,7 +30,7 @@ class Crawler:
         self.curl = MyCurl(self.dest)
 
     def filterLinks(self, links):
-        filteredLinks = []
+        filteredLinks = set()
         for link in links:
             if link not in filteredLinks and not self.curl.is_visited_or_Not(link):
                 filteredLinks.add(link)
@@ -42,8 +43,7 @@ class Crawler:
         return self.filterLinks(links)
 
     def findFlags(self, body):
-        pattern = re.compile(r"<h2 class='secret_flag' style=\\")
-        flags = pattern.findall(body)
+        flags = re.findall(r'FLAG: (\w*)', body, re.I)
         return flags
 
 
