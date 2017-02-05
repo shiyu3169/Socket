@@ -44,6 +44,8 @@ class Crawler:
 
     def findFlags(self, body):
         flags = re.findall(r'FLAG: (\w*)', body, re.I)
+        for flag in flags:
+            flag = str(flag)
         return flags
 
 
