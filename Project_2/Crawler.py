@@ -44,6 +44,16 @@ class Crawler:
 
 
     def login(self, username, password):
+        form = "username=" + username + "&password=" + password
+        self.curl.get(Crawler.LOG_IN_PAGEG)
+        csrf_token = self.curl.get_cookie('csrftoken')
+        form += ("&csrfmiddlewaretoken=" + csrf_token)
+        # ToDo:probably useless
+        headers = {
+            "content-type": "application/x-www-form-urlencoded"
+        }
+        loginResponse = self.curl.post(Crawler.LOG_IN_PAGE, headers, str(form))
+        self.response_processor(Crawler.LOG_IN_PAGE, loginResponse)
 
     def response_processor(self, URL, response):
         #status code=200
