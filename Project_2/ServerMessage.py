@@ -1,7 +1,7 @@
+
 __author__="Shiyu Wang"
 
 from CookieJar import CookieJar
-import socket
 
 
 class ServerMessage:
@@ -64,11 +64,8 @@ class ServerMessage:
         if key == "set-cookie":
             self.cookieJar.add_cookie_from_string(value)
 
-        #TODO: maybe useless
-        if key in self.headers.keys():
-            self.headers[key] = str(self.headers[key]) +", " + str(value)
-        else:
-            self.headers[key] = str(value)
+
+        self.headers[key] = str(value)
 
     def readBody(self, file, fileLength):
         body = ""
