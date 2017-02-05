@@ -1,15 +1,15 @@
 import re
-import MyCurl
+from MyCurl import MyCurl
 import argparse
 
 
 class HTTP_STATUS:
-    OK=200;
-    MOVE_PERMANENTLY=301
-    FOUND=302
-    FORBIDDEN=403
-    NOT_FOUND=404
-    SERVER_ERROR=500
+    OK='200'
+    MOVE_PERMANENTLY='301'
+    FOUND='302'
+    FORBIDDEN='403'
+    NOT_FOUND='404'
+    SERVER_ERROR='500'
 
 
 
@@ -49,7 +49,7 @@ class Crawler:
 
     def login(self, username, password):
         form = "username=" + username + "&password=" + password
-        self.curl.get(Crawler.LOG_IN_PAGEG)
+        self.curl.get(Crawler.LOG_IN_PAGE)
         csrf_token = self.curl.get_cookie('csrftoken')
         form += ("&csrfmiddlewaretoken=" + csrf_token)
         # ToDo:probably useless
@@ -68,7 +68,7 @@ class Crawler:
         #if response.status_code == HTTP_STATUS.FORBIDDEN or response.status_code == HTTP_STATUS.NOT_FOUND:
 
         #status code=301 or 302
-        if response.status_code ==  HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY
+        if response.status_code ==  HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY:
             forward_link=response.getHeader("location")
             if forward_link not in self.frontier and not self.curl.is_visited_or_Not(forward_link):
                 self.frontier.add(forward_link)
@@ -96,7 +96,23 @@ class Crawler:
             response=self.curl.get(url)
             self.response_processor(url,response)
 
-    def main(self):
+
+
+
+def main(args):
+    mycrawler=Crawler()
+    mycrawler.crawl(args.username,args.password)
+    print("\n".join(mycrawler.flags))
+
+
+if __name__ == "__main__":
+    parser=argparse.ArgumentParser(description='Process Input')
+    parser.add_argument("username",help="username of fakebook")
+    parser.add_argument("password",help="password of fakebook")
+    args=parser.parse_args()
+    main(args)
+
+
 
 
 
