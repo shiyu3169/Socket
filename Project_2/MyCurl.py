@@ -9,15 +9,19 @@ class MyCurl:
 
     def __init__(self,dest):
         self.socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.socket.connect(dest)
+        # self.socket.connect(dest)
         self.history=set()
         self.cookieJar=CookieJar()
+        self.dest = dest
 
 
     def request(self,method, URL, headers=None, body="" ):
+        self.socket.close()
         message=ClientMessage(method,URL,headers,body)
         message.headers['Cookie']=str(self.cookieJar)
         self.history.add(URL)
+        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.socket.connect(self.dest)
         self.socket.sendall(str(message).encode())
         response=ServerMessage(self.socket)
         self.add_new_cookies(response)

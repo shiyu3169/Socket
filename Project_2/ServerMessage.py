@@ -33,7 +33,7 @@ class ServerMessage:
             print(file.readline().decode("utf-8").strip())
             raise Exception
         version, status_code, status = statusLine.split(None, 2)
-        print status_code
+        # print(status_code)
         self.version = str(version)
         self.status_code = str(status_code)
         self.status = str(status)

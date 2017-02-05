@@ -46,6 +46,7 @@ class Crawler:
         flags = re.findall(r'FLAG: (\w*)', body, re.I)
         for flag in flags:
             flag = str(flag)
+            print(flag)
         return flags
 
 
@@ -70,13 +71,13 @@ class Crawler:
         #if response.status_code == HTTP_STATUS.FORBIDDEN or response.status_code == HTTP_STATUS.NOT_FOUND:
 
         #status code=301 or 302
-        if response.status_code ==  HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY:
+        if response.status_code == HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY:
             forward_link=response.getHeader("location")
             if forward_link not in self.frontier and not self.curl.is_visited_or_Not(forward_link):
                 self.frontier.add(forward_link)
 
         #status code=500
-        if response.status_code ==  HTTP_STATUS.SERVER_ERROR:
+        if response.status_code == HTTP_STATUS.SERVER_ERROR:
             if URL not in self.frontier and not self.curl.is_visited_or_Not(URL):
                 self.frontier.add(URL)
 
