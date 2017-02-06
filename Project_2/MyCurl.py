@@ -16,7 +16,6 @@ class MyCurl:
 
     def request(self,method, URL, headers=None, body=""):
         """sending request to server"""
-        self.socket.close()
         message=ClientMessage(method, URL, headers, body)
         message.headers['Cookie']=str(self.cookieJar)
         self.history.add(URL)
@@ -31,7 +30,9 @@ class MyCurl:
         except:
             raise Exception("empty socket")
         self.add_new_cookies(response)
+        self.socket.close()
         return response
+
 
     def get(self,URL,headers={}):
         """sending get request"""

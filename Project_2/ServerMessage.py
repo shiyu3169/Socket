@@ -10,11 +10,11 @@ class ServerMessage:
     def __init__(self, mySocket):
         """initialize the varaibles"""
         self.version = ""
-        self.headers = {}
-        self.body = ""
         self.status_code = None
         self.status = ""
         self.cookieJar = CookieJar()
+        self.headers = {}
+        self.body = ""
 
         # Start reading received message and update variables
         socketFile = mySocket.makefile("rb")
@@ -44,11 +44,14 @@ class ServerMessage:
         """start reading the 2nd line of header"""
 
         key = ""
-        while True:
+        while 1:
             line = file.readline().decode("utf-8")
-            # valid header line is supposed to always have ":" symbol
-            if ":" not in line:
+            if line is None:
+                raise Exception("Error read line")
+            elif ":" not in line:
+                # valid header line is supposed to always have ":" symbol
                 break
+
             #remove leading space
             sLine = str(line.strip())
 

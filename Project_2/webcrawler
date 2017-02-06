@@ -63,10 +63,7 @@ class Crawler:
         self.curl.get(Crawler.LOG_IN_PAGE)
         csrf_token = self.curl.get_cookie('csrftoken')
         form += ("&csrfmiddlewaretoken=" + csrf_token)
-        # ToDo:probably useless
-        headers = {
-            "content-type": "application/x-www-form-urlencoded"
-        }
+        headers = {}
         loginResponse = self.curl.post(Crawler.LOG_IN_PAGE, headers, str(form))
         if loginResponse.status_code != HTTP_STATUS.FOUND:
             raise Exception("fail to login")

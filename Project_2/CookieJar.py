@@ -12,12 +12,12 @@ class CookieJar:
         '''The jar is a cache to store cookies(key, value pairs)'''
         self.jar={}
 
+
     def add_cookie(self,key,value):
         """add cookies into jar by given key"""
         self.jar[key]=value
 
 
-    # ToDo: Use @dispatch to realize overloading here
     def add_cookie_from_string(self,str):
         matchPattern=PATTERN.search(str)
         if matchPattern:
