@@ -53,42 +53,40 @@ class ServerMessage:
             sLine = str(line.strip())
 
             if line[0] is " ":
-                self.addHeader(str(key.lower()), str(sLine))
+                if str(key.lower()) == "set-cookie":
+                    self.cookieJar.add_cookie_from_string(str(sLine))
+                self.headers[str(key.lower())] = str(sLine)
                 continue
             try:
                 key, value = sLine.split(":", 1)
             except:
                 raise Exception("invalid format of header")
 
-            self.addHeader(str(key.lower()), str(value.strip()))
+            if str(key.lower()) == "set-cookie":
+                self.cookieJar.add_cookie_from_string(str(value.strip()))
+            self.headers[str(key.lower())] = str(value.strip())
 
-    def addHeader(self, key, value):
-        """Add the header by given key"""
 
-        # Check if this line is a cookie
-        if key == "set-cookie":
-            self.cookieJar.add_cookie_from_string(value)
-
-        self.headers[key] = str(value)
 
     def readBody(self, file, fileLength):
         """read the body part of the message"""
-        body = ""
-        while fileLength > 0:
+        self.body=""
+        while 1:
             data = file.read(fileLength).decode("utf-8")
-
             # check if the socket is empty
             if data is None:
                 raise Exception("socket is empty")
+            self.body += data
             fileLength -= len(data)
-            body += data
-        self.body = body
+            if fileLength <= 0:
+                break
+
 
 
 
     def readChunkedBody(self, file):
         """read the special chunked body of the message"""
-        body= ""
+        self.body= ""
         while 1:
             hexsize = file.readline().decode("utf-8")
 
@@ -99,14 +97,14 @@ class ServerMessage:
             if size == 0:
                 break
             data = ""
-            while size > 0:
+            while 1:
                 line = file.read(size).decode("utf-8")
-                size -= len(line)
                 data += line
-            body += data
+                size -= len(line)
+                if size<=0:
+                    break
+            self.body += data
             file.read(2)
-
-        self.body = body
         self.readHeader(file)
 
     def getHeader(self, key):

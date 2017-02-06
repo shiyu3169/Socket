@@ -39,10 +39,11 @@ class Crawler:
         return filteredLinks
 
     def findLinks(self, body):
-        pattern = re.compile(r'<a href=\"(/fakebook/[a-z0-9/]+)\">')
+        pattern = re.compile(r'<a href=\"(/fakebook/?[a-z0-9/]*)\">')
         links = pattern.findall(body)
         # Find a new url(have not been visited or found), then add it to urls
         return self.filterLinks(links)
+
 
     def findFlags(self, body):
         flags = re.findall(r'FLAG: (\w*)', body, re.I)
