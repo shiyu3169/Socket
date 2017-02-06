@@ -104,13 +104,9 @@ class Crawler:
             response=self.curl.get(url)
             self.response_processor(url,response)
 
-
-
-
 def main(args):
     mycrawler=Crawler()
     mycrawler.crawl(args.username,args.password)
-    print("\n".join(mycrawler.flags))
 
 
 if __name__ == "__main__":
