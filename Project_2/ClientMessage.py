@@ -18,15 +18,18 @@ class ClientMessage:
 
     def __str__(self):
         """Transfer the message into string to send to server"""
-        firstLine="{} {} {}".format(self.method,self.URL,self.version)
+        firstLine=""+str(self.method)+" "+str(self.URL)+" "+str(self.version)
 
         headers=[]
         for key in self.headers:
-            headers.append("{}:{}".format(key,self.headers[key]));
+            new_header_line=""+str(key)+":"+str(self.headers[key])
+            headers.append(new_header_line)
 
         headersLines="\n".join(headers)
 
-        result="\n".join([firstLine,headersLines,"",self.body])+"\n"
+        result="\n".join([firstLine,headersLines,"",self.body])
+
+        result+="\n"
 
         return result
 

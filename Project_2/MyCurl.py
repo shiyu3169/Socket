@@ -14,7 +14,7 @@ class MyCurl:
         self.cookieJar=CookieJar()
         self.dest = dest
 
-    def request(self,method, URL, headers=None, body="" ):
+    def request(self,method, URL, headers=None, body=""):
         """sending request to server"""
         self.socket.close()
         message=ClientMessage(method, URL, headers, body)
@@ -29,7 +29,7 @@ class MyCurl:
         try:
             response=ServerMessage(self.socket)
         except:
-            raise Exception("empy socket")
+            raise Exception("empty socket")
         self.add_new_cookies(response)
         return response
 
