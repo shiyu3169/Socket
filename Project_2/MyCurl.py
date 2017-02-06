@@ -29,7 +29,7 @@ class MyCurl:
         try:
             response=ServerMessage(self.socket)
         except:
-            raise Exception("empy socket")
+            raise Exception("empty socket")
         self.add_new_cookies(response)
         return response
 
