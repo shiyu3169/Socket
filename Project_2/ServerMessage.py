@@ -53,7 +53,6 @@ class ServerMessage:
             sLine = str(line.strip())
 
             if line[0] is " ":
-                #self.addHeader(str(key.lower()), str(sLine))
                 if str(key.lower()) == "set-cookie":
                     self.cookieJar.add_cookie_from_string(str(sLine))
                 self.headers[str(key.lower())] = str(sLine)
@@ -63,7 +62,6 @@ class ServerMessage:
             except:
                 raise Exception("invalid format of header")
 
-            #self.addHeader(str(key.lower()), str(value.strip()))
             if str(key.lower()) == "set-cookie":
                 self.cookieJar.add_cookie_from_string(str(value.strip()))
             self.headers[str(key.lower())] = str(value.strip())
