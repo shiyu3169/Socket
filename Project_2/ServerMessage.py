@@ -53,23 +53,22 @@ class ServerMessage:
             sLine = str(line.strip())
 
             if line[0] is " ":
-                self.addHeader(str(key.lower()), str(sLine))
+                #self.addHeader(str(key.lower()), str(sLine))
+                if str(key.lower()) == "set-cookie":
+                    self.cookieJar.add_cookie_from_string(str(sLine))
+                self.headers[str(key.lower())] = str(sLine)
                 continue
             try:
                 key, value = sLine.split(":", 1)
             except:
                 raise Exception("invalid format of header")
 
-            self.addHeader(str(key.lower()), str(value.strip()))
+            #self.addHeader(str(key.lower()), str(value.strip()))
+            if str(key.lower()) == "set-cookie":
+                self.cookieJar.add_cookie_from_string(str(value.strip()))
+            self.headers[str(key.lower())] = str(value.strip())
 
-    def addHeader(self, key, value):
-        """Add the header by given key"""
 
-        # Check if this line is a cookie
-        if key == "set-cookie":
-            self.cookieJar.add_cookie_from_string(value)
-
-        self.headers[key] = str(value)
 
     def readBody(self, file, fileLength):
         """read the body part of the message"""
