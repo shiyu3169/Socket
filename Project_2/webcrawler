@@ -7,6 +7,7 @@ from MyCurl import MyCurl
 
 
 class HTTP_STATUS:
+    """match Http Status and its code"""
     OK='200'
     MOVE_PERMANENTLY='301'
     FOUND='302'
@@ -18,20 +19,21 @@ class HTTP_STATUS:
 
 
 class Crawler:
+    """the main crawler page used to parse response message
+    in order to navigate around frontier to find 5 flags"""
 
-
+    # the login page
     LOG_IN_PAGE="/accounts/login/?next=/fakebook/"
 
-
-
-
     def __init__(self):
+        """init the variables"""
         self.frontier = set()
         self.flags = set()
         self.dest = ("cs5700sp17.ccs.neu.edu",80)
         self.curl = MyCurl(self.dest)
 
     def filterLinks(self, links):
+        """filter out the duplicate links or visited links"""
         filteredLinks = set()
         for link in links:
             if link not in filteredLinks and not self.curl.is_visited_or_Not(link):
@@ -39,6 +41,7 @@ class Crawler:
         return filteredLinks
 
     def findLinks(self, body):
+        """find all hyperlinks starting with 'fakebook' in this page body"""
         pattern = re.compile(r'<a href=\"(/fakebook/?[a-z0-9/]*)\">')
         links = pattern.findall(body)
         # Find a new url(have not been visited or found), then add it to urls
@@ -46,6 +49,7 @@ class Crawler:
 
 
     def findFlags(self, body):
+        """find all flags in current page body"""
         flags = re.findall(r'FLAG: (\w*)', body, re.I)
         for flag in flags:
             flag = str(flag)
@@ -69,6 +73,7 @@ class Crawler:
         self.response_processor(Crawler.LOG_IN_PAGE, loginResponse)
 
     def response_processor(self, URL, response):
+        """handle different status from server response"""
         #status code=200
         if response.status_code == HTTP_STATUS.OK:
             self.body_processor(response)
@@ -89,6 +94,7 @@ class Crawler:
 
 
     def body_processor(self,response):
+        """navigate around links to find flags"""
         response_body=response.body
         all_links=self.findLinks(response_body)
         all_flags=self.findFlags(response_body)
@@ -99,6 +105,7 @@ class Crawler:
 
 
     def crawl(self,username,password):
+        """main function to start login and look for flags"""
         self.login(username,password)
         while len(self.frontier)>0 and len(self.flags)<5 :
             url=self.frontier.pop()
