@@ -70,7 +70,7 @@ class Crawler:
         try:
             csrf_token = self.curl.get_cookie('csrftoken')
         except:
-            raise Exception("No csrf_token in the header of get respose from log in page")
+            raise Exception("No csrf_token in the header of response from login page")
         form += ("&csrfmiddlewaretoken=" + csrf_token)
         headers = {}
         try:
