@@ -111,7 +111,7 @@ class ServerMessage:
             try:
                 hexsize = file.readline().decode("utf-8")
             except:
-                raise Exception("Error readin a line in chunked body")
+                raise Exception("Error reading a line in chunked body")
             # check if the socket is empty
             if hexsize is None:
                 raise Exception("empty socket")
