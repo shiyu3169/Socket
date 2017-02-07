@@ -63,11 +63,20 @@ class Crawler:
     def login(self, username, password):
         """login into fakebook and handle cookie"""
         form = "username=" + username + "&password=" + password
-        self.curl.get(Crawler.LOG_IN_PAGE)
-        csrf_token = self.curl.get_cookie('csrftoken')
+        try:
+            self.curl.get(Crawler.LOG_IN_PAGE)
+        except:
+            raise Exception("Cannot access log in page")
+        try:
+            csrf_token = self.curl.get_cookie('csrftoken')
+        except:
+            raise Exception("No csrf_token in the header of get respose from log in page")
         form += ("&csrfmiddlewaretoken=" + csrf_token)
         headers = {}
-        loginResponse = self.curl.post(Crawler.LOG_IN_PAGE, headers, str(form))
+        try:
+            loginResponse = self.curl.post(Crawler.LOG_IN_PAGE, headers, str(form))
+        except:
+            raise Exception("Cannot make post to log in page")
         if loginResponse.status_code != HTTP_STATUS.FOUND:
             raise Exception("fail to login")
         self.response_processor(Crawler.LOG_IN_PAGE, loginResponse)
@@ -83,7 +92,10 @@ class Crawler:
 
         #status code=301 or 302
         if response.status_code == HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY:
-            forward_link=response.getHeader("location")
+            try:
+                forward_link=response.getHeader("location")
+            except:
+                raise Exception("Server return 301 or 302, but no link to relocate to")
             if forward_link not in self.frontier and not self.curl.is_visited_or_Not(forward_link):
                 self.frontier.add(forward_link)
 
@@ -109,7 +121,10 @@ class Crawler:
         self.login(username,password)
         while len(self.frontier)>0 and len(self.flags)<5 :
             url=self.frontier.pop()
-            response=self.curl.get(url)
+            try:
+                response=self.curl.get(url)
+            except:
+                raise Exception("This url: " + url + " is not working")
             self.response_processor(url,response)
 
 def main(args):
@@ -123,9 +138,3 @@ if __name__ == "__main__":
     parser.add_argument("password",help="password of fakebook")
     args=parser.parse_args()
     main(args)
-
-
-
-
-
-
