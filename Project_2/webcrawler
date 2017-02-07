@@ -126,6 +126,9 @@ class Crawler:
             except:
                 raise Exception("This url: " + url + " is not working")
             self.response_processor(url,response)
+        if not len(self.flags)==5:
+            raise Exception("Unknown server Error")
+
 
 def main(args):
     mycrawler=Crawler()
