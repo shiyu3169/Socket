@@ -42,7 +42,9 @@ class Crawler:
 
     def findLinks(self, body):
         """find all hyperlinks starting with 'fakebook' in this page body"""
-        pattern = re.compile(r'<a href=\"(/fakebook/?[a-z0-9/]*)\">')
+        # According to the TA, the hyperlinks will always start with /fakebook/
+        # and it should also consider unsafe characters, such as <, >, #, %, {, }
+        pattern = re.compile(r'<a href=\"(/fakebook/?[\S/]*)\">')
         links = pattern.findall(body)
         # Find a new url(have not been visited or found), then add it to urls
         return self.filterLinks(links)
@@ -50,7 +52,8 @@ class Crawler:
 
     def findFlags(self, body):
         """find all flags in current page body"""
-        flags = re.findall(r'FLAG: (\w*)', body, re.I)
+        pattern = re.compile(r"<h2 class='secret_flag' style=\"color:red\">FLAG: (\w*)</h2>")
+        flags = pattern.findall(body)
         for flag in flags:
             flag = str(flag)
             print(flag)
