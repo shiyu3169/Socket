@@ -25,27 +25,41 @@ class ServerMessage:
         else:
             bodyLength = int(self.getHeader("content-length"))
             self.readBody(socketFile, bodyLength)
-        socketFile.close()
+        try:
+            socketFile.close()
+        except:
+            raise Exception("Cannot close file stream from socket correctly")
+
+
 
     def getStatus(self, file):
         """read the first line to get status info"""
-        statusLine = file.readline().decode("utf-8").strip()
-
+        try:
+            statusLine = file.readline().decode("utf-8").strip()
+        except:
+            raise Exception("Error in reading line")
         # check if the file is empty, raise exception
         if statusLine == "":
             raise Exception("socket is empty")
 
-        version, status_code, status = statusLine.split(None, 2)
-        self.version = str(version)
-        self.status_code = str(status_code)
-        self.status = str(status)
+        try:
+            version, status_code, status = statusLine.split(None, 2)
+            self.version = str(version)
+            self.status_code = str(status_code)
+            self.status = str(status)
+        except:
+            raise Exception ("Status line of response message is problematic")
 
     def readHeader(self, file):
         """start reading the 2nd line of header"""
 
         key = ""
         while 1:
-            line = file.readline().decode("utf-8")
+            try:
+                line = file.readline().decode("utf-8")
+            except:
+                raise Exception("Error in reading line")
+
             if line is None:
                 raise Exception("Error read line")
             elif ":" not in line:
@@ -75,7 +89,10 @@ class ServerMessage:
         """read the body part of the message"""
         self.body=""
         while 1:
-            data = file.read(fileLength).decode("utf-8")
+            try:
+                data = file.read(fileLength).decode("utf-8")
+            except:
+                raise Exception("Error reading a line in the body")
             # check if the socket is empty
             if data is None:
                 raise Exception("socket is empty")
@@ -91,8 +108,10 @@ class ServerMessage:
         """read the special chunked body of the message"""
         self.body= ""
         while 1:
-            hexsize = file.readline().decode("utf-8")
-
+            try:
+                hexsize = file.readline().decode("utf-8")
+            except:
+                raise Exception("Error readin a line in chunked body")
             # check if the socket is empty
             if hexsize is None:
                 raise Exception("empty socket")
@@ -101,7 +120,10 @@ class ServerMessage:
                 break
             data = ""
             while 1:
-                line = file.read(size).decode("utf-8")
+                try:
+                    line = file.read(size).decode("utf-8")
+                except:
+                    raise Exception("Error reading a line in chunked body")
                 data += line
                 size -= len(line)
                 if size<=0:
