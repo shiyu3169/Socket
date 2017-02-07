@@ -1,5 +1,5 @@
 default:
-	chmod +x webcrawler
+	chmod 755 webcrawler
 clean:
 	rm -rf __pycache__
 	rm -f *.pyc
