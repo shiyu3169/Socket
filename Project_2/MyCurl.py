@@ -8,7 +8,10 @@ from CookieJar import CookieJar
 class MyCurl:
     """Curl to connect server and client"""
     def __init__(self,dest):
-        self.socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.socket=socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        except:
+            raise Exception("Cannot initiate socket correctly")
         # self.socket.connect(dest)
         self.history=set()
         self.cookieJar=CookieJar()
@@ -19,7 +22,10 @@ class MyCurl:
         message=ClientMessage(method, URL, headers, body)
         message.headers['Cookie']=str(self.cookieJar)
         self.history.add(URL)
-        self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        try:
+            self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        except:
+            raise Exception("Cannot initiate socket correctly")
         try:
             self.socket.connect(self.dest)
             self.socket.sendall(str(message).encode())
@@ -30,7 +36,10 @@ class MyCurl:
         except:
             raise Exception("empty socket")
         self.add_new_cookies(response)
-        self.socket.close()
+        try:
+            self.socket.close()
+        except:
+            raise Exception("Socket cannot close correctly")
         return response
 
 
