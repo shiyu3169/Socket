@@ -14,7 +14,10 @@ class ClientMessage:
         self.version=ClientMessage.HTTP_VERSION
         self.headers=ClientMessage.HTTP_HEADERS.copy()
         self.headers.update(headers)
-        self.headers["Content-length"]=len(body)
+        try:
+            self.headers["Content-length"]=len(body)
+        except:
+            raise ("No field called Content-length in client message")
 
     def __str__(self):
         """Transfer the message into string to send to server"""
