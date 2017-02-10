@@ -99,7 +99,7 @@ TCP flavors: Reno, Sack
 Experiment:
      1. Start TCP connection between N1-N4
      2. Start CBR between N5 and N6 after 2 second.
-     3. Keep all the connection running for 8 more seconds, make measurements
+     3. Keep all the connection running for 8 more seconds, make measurement every 0.1 second in the meantime
      4. Change to the other queueing mechanism, restart the experiment
 
 Plots:
