@@ -92,7 +92,7 @@ N5			  N6
 Bandwidth: 10 Mbps for each link
 
 Measurements: TCP's throughput, drop rate and latency between N1-N4
-              CBR's throughput, drop rate and latency between N1-N4
+              CBR's throughput, drop rate and latency between N5-N6
 
 TCP flavors: Reno, Sack
 
