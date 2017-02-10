@@ -14,14 +14,14 @@ Bandwidth: N1-N2: 30 Mbps
 
 Measurements: TCP’s throughput, drop rate and latency
 
-TCP flavors tested: Tahoe, Reno, NewReno and Vegas 
+TCP flavors: Tahoe, Reno, NewReno and Vegas
 
 Experiment:
 
 	Step 1:
 		Initiate TCP between N1-N4	
 	Step 2:
-		Initiate CBR between N2-N3 at flow rate of 1 Mbps, do TCP measurements 
+		Initiate CBR between N2-N3 at flow rate of 1 Mbps, make TCP measurements
 	Step3:
 		while ( 10mbps bottleneck capacity of N2, N3 is not reached):
 				increase CBR flow rate by 1 Mbps
@@ -88,12 +88,20 @@ N1            N4
 N5			  N6
 
 
-Bandwidth: 10 Mbps
+Bandwidth: 10 Mbps for each link
 
 Measurements: TCP's throughput, drop rate and latency between N1-N4
+              CBR's throughput, drop rate and latency between N1-N4
 
 TCP flavors: Reno, Sack
 
-
 Experiment:
+     1. Start TCP connection between N1-N4
+     2. Start CBR between N5 and N6 after 2 second.
+     3. Keep all the connection running for 8 more seconds, make measurements
+     4. Change to the other queueing mechanism, restart the experiment
 
+Plots:
+    1. TCP's throughput and CBR's throughput (y coordinate) vs. time (x coordinate)
+	2. TCP's drop rate and CBR's drop rate (y coordinate) vs. time (x coordinate)
+	3. TCP's latency and CBR's latency (y coordinate) vs. time (x coordinate)
