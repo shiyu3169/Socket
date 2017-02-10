@@ -28,6 +28,7 @@ Experiment:
 				do TCP measurements
 
 Plots:
+  For each TCP flavor:
 	1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
 	2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
 	3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
@@ -102,6 +103,7 @@ Experiment:
      4. Change to the other queueing mechanism, restart the experiment
 
 Plots:
+  For each TCP flavor:
     1. TCP's throughput and CBR's throughput (y coordinate) vs. time (x coordinate)
 	2. TCP's drop rate and CBR's drop rate (y coordinate) vs. time (x coordinate)
 	3. TCP's latency and CBR's latency (y coordinate) vs. time (x coordinate)
