@@ -1,0 +1,31 @@
+Topology: 
+
+N1            N4
+  \          /
+   \	    /
+    N2————N3
+
+Bandwith: N1-N2: 30 mpbs
+	  N2-N3: 30 mbps
+          N3-N4: 30 mbps
+
+
+Measurements: TCP’s throughput, drop rate and latency
+
+TCP flavors tested: Tahoe, Reno, NewReno and Vegas 
+
+Experiment:
+
+	Step 1:
+		Initiate TCP between N1-N4	
+	Step 2:
+		Initiate CBR between N2-N3 at flow rate of 1 Mbps, do TCP measurements 
+	Step3:
+		while ( 10mbps bottleneck capacity of N2, N3 is not reached):
+				increase CBR flow rate by 1 Mbps
+				do TCP measurements
+
+Plots:
+	1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
+	2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
+	3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
