@@ -69,10 +69,11 @@ Experiment:
 				(2). Increase CBR flow rate by 1 Mbps
 
 Plots:
-	For each X, Y TCP variants pair
-	1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
-	2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
-	3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
+	For each X, Y TCP variants pair in Reno/Reno, NewReno/Reno, Vegas/Vegas, NewReno/Vegas
+		Two value sets: Blue color for X, Orange for Y.
+			1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
+			2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
+			3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
 
 
 Experiment 3:
