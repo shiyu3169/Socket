@@ -43,7 +43,14 @@ N1            N4
   /			 \
 N5			  N6
 
-Measurements: N2-N3 CBR throughput, drop rate and latency
+Bandwith: 
+	N1-N2: 30 mpbs
+	N5-N2: 30 mpbs
+  	N2-N3: 10 mbps
+    N3-N4: 30 mbps
+    N3-N6: 30 mbps
+
+Measurements: N1->N4 and N5->N6 TCP throughput, drop rate and latency
 
 Experiment:
 
