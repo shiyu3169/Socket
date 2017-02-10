@@ -1,3 +1,5 @@
+Experiment 1
+
 Topology: 
 
 N1            N4
@@ -6,7 +8,7 @@ N1            N4
     N2————N3
 
 Bandwith: N1-N2: 30 mpbs
-	  N2-N3: 30 mbps
+	  	  N2-N3: 30 mbps
           N3-N4: 30 mbps
 
 
@@ -29,3 +31,32 @@ Plots:
 	1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
 	2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
 	3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
+
+Experiment 2
+
+Topology: 
+N1            N4
+  \          /
+   \	    /
+    N2————N3
+   /		\
+  /			 \
+N5			  N6
+
+Measurements: N2-N3 CBR throughput, drop rate and latency
+
+Experiment:
+
+	X/Y pair = Reno/Reno, NewReno/Reno, Vegas/Vegas, NewReno/Vegas
+
+	To analyze fairness between different TCP variants, two variants are compared in the same environment for the distribution of bandwidth with a common CBR. 
+	N2->N3: CBR over UDP
+	N1->N4: TCP flow of variant X 
+	N5->N6: TCP flow of variant Y 
+
+	1.	For each X, Y pair:
+		i.  Initia a CBR flow from N2 -> N3 with bandwidth of 1 Mbps
+		ii.	Initiate TCP X between N1-N4, TCP Y between N5 - N6 at the same time
+			a. While ( 10mbps bottleneck capacity of N2, N3 is not reached):
+				(1). Measure throughput, drop-rate, latency.
+				(2). Increase CBR flow rate by 1 Mbps
