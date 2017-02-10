@@ -7,9 +7,9 @@ N1            N4
    \	    /
     N2————N3
 
-Bandwith: N1-N2: 30 mpbs
-	  	  N2-N3: 10 mbps
-          N3-N4: 30 mbps
+Bandwidth: N1-N2: 30 Mbps
+	  	  N2-N3: 10 Mbps
+          N3-N4: 30 Mbps
 
 
 Measurements: TCP’s throughput, drop rate and latency
@@ -67,3 +67,26 @@ Experiment:
 			a. While ( 10mbps bottleneck capacity of N2, N3 is not reached):
 				(1). Measure throughput, drop-rate, latency.
 				(2). Increase CBR flow rate by 1 Mbps
+
+
+Experiment 3:
+
+
+N1            N4
+  \          /
+   \	    /
+    N2————N3
+   /		\
+  /			 \
+N5			  N6
+
+
+Bandwidth: 10 Mbps
+
+Measurements: TCP's throughput, drop rate and latency between N1-N4
+
+TCP flavors: Reno, Sack
+
+
+Experiment:
+
