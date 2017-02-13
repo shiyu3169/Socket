@@ -121,3 +121,5 @@ Plots:
 	3. TCP's latency and CBR's latency (y coordinate) vs. time (x coordinate)
 
 Statistics Analysis:
+    For each queueing mechanism:
+        Applying T-test on throughput, drop rate and latency data for TCP and CBR to verify the data are statistically significant
