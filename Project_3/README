@@ -86,7 +86,8 @@ Plots:
 
 
 Statistics Analysis:
-
+    For each pair of X and Y TCP variants:
+        Perform T-test on throughput, drop rate and latency data to verify the data are statistically significant
 
 Experiment 3:
 
