@@ -23,7 +23,7 @@ Experiment:
 	Step 2:
 		Initiate CBR between N2-N3 at flow rate of 1 Mbps, make TCP measurements
 	Step3:
-		while ( 10mbps bottleneck capacity of N2, N3 is not reached):
+		while ( 10Mbps bottleneck capacity of N2, N3 is not reached):
 				increase CBR flow rate by 1 Mbps
 				do TCP measurements
 
@@ -32,6 +32,15 @@ Plots:
 	1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
 	2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
 	3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
+
+Statistics Analysis:
+    Perform T test on throughput data from Tahoe and Reno, if the null hypotheses (that the throughput performances of
+    two TCP flavors are the same), collect more data.
+    Perform similar T test on drop rate data from Tahoe and Reno and T test on latency data from Tahoe and Reno.
+    Perform T test on data sets from other TCP flavor pairs.
+
+
+
 
 Experiment 2
 
@@ -77,6 +86,9 @@ Plots:
 			3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
 
 
+Statistics Analysis:
+
+
 Experiment 3:
 
 
@@ -107,3 +119,5 @@ Plots:
     1. TCP's throughput and CBR's throughput (y coordinate) vs. time (x coordinate)
 	2. TCP's drop rate and CBR's drop rate (y coordinate) vs. time (x coordinate)
 	3. TCP's latency and CBR's latency (y coordinate) vs. time (x coordinate)
+
+Statistics Analysis:
