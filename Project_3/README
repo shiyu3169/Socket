@@ -71,7 +71,7 @@ Experiment:
 	N5->N6: TCP flow of variant Y 
 
 	1.	For each X, Y pair:
-		i.  Initia a CBR flow from N2 -> N3 with flow rate of 1 Mbps
+		i.  Initiate a CBR flow from N2 -> N3 with flow rate of 1 Mbps
 		ii.	Initiate TCP X between N1-N4, TCP Y between N5 - N6 at the same time
 			a. While ( 10 Mbps bottleneck capacity of N2, N3 is not reached):
 				(1). Measure throughput, drop-rate, latency.
