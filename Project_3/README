@@ -7,9 +7,9 @@ N1               N4
    \	       /
     N2————N3
 
-Bandwidth: N1-N2: 30 Mbps
-	  	  N2-N3: 10 Mbps
-          N3-N4: 30 Mbps
+Bandwidth: N1-N4: 30 Mbps
+           N2-N3: 10 Mbps
+
 
 
 Measurements: TCP’s throughput, drop rate and latency
@@ -23,7 +23,7 @@ Experiment:
 	Step 2:
 		Initiate CBR between N2-N3 at flow rate of 1 Mbps, make TCP measurements
 	Step3:
-		while ( 10mbps bottleneck capacity of N2, N3 is not reached):
+		while ( 10 Mbps bottleneck capacity of N2, N3 is not reached):
 				increase CBR flow rate by 1 Mbps
 				do TCP measurements
 
@@ -32,6 +32,15 @@ Plots:
 	1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
 	2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
 	3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
+
+Statistics Analysis:
+    Perform T-test on throughput data from Tahoe and Reno, if the null hypotheses (that the throughput performances of
+    two TCP flavors are the same), collect more data.
+    Perform similar T-test on drop rate data from Tahoe and Reno and T-test on latency data from Tahoe and Reno.
+    Perform T-test on data sets from other TCP flavor pairs.
+
+
+
 
 Experiment 2
 
@@ -44,12 +53,11 @@ N1               N4
   /              \
 N5                N6
 
-Bandwith: 
-	N1-N2: 30 mpbs
-	N5-N2: 30 mpbs
-  	N2-N3: 10 mbps
-    N3-N4: 30 mbps
-    N3-N6: 30 mbps
+Bandwith:
+    N1-N4: 30 mpbs
+	N5-N6: 30 mpbs
+	N2-N3: 10 mbps
+
 
 Measurements: N1->N4 and N5->N6 TCP throughput, drop rate and latency
 
@@ -63,9 +71,9 @@ Experiment:
 	N5->N6: TCP flow of variant Y 
 
 	1.	For each X, Y pair:
-		i.  Initia a CBR flow from N2 -> N3 with bandwidth of 1 Mbps
+		i.  Initia a CBR flow from N2 -> N3 with flow rate of 1 Mbps
 		ii.	Initiate TCP X between N1-N4, TCP Y between N5 - N6 at the same time
-			a. While ( 10mbps bottleneck capacity of N2, N3 is not reached):
+			a. While ( 10 Mbps bottleneck capacity of N2, N3 is not reached):
 				(1). Measure throughput, drop-rate, latency.
 				(2). Increase CBR flow rate by 1 Mbps
 
@@ -75,6 +83,9 @@ Plots:
 			1. Throughput (y coordinate) vs. CBR flow rate (x coordinate)
 			2. Drop rate (y coordinate) vs. CBR flow rate (x coordinate)
 			3. Latency (y coordinate) vs.  CBR flow rate (x coordinate)
+
+
+Statistics Analysis:
 
 
 Experiment 3:
@@ -107,3 +118,5 @@ Plots:
     1. TCP's throughput and CBR's throughput (y coordinate) vs. time (x coordinate)
 	2. TCP's drop rate and CBR's drop rate (y coordinate) vs. time (x coordinate)
 	3. TCP's latency and CBR's latency (y coordinate) vs. time (x coordinate)
+
+Statistics Analysis:
