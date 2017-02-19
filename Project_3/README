@@ -2,9 +2,9 @@ Experiment 1
 
 Topology: 
 
-N1               N4
-  \             /
-   \	       /
+N1            N4
+  \          /
+   \	    /
     N2————N3
 
 Bandwidth: N1-N4: 30 Mbps
@@ -45,13 +45,13 @@ Statistics Analysis:
 Experiment 2
 
 Topology: 
-N1               N4
-  \             /
-   \	       /
+N1            N4
+  \          /
+   \	    /
     N2————N3
-   /            \
-  /              \
-N5                N6
+   /        \
+  /          \
+N5            N6
 
 Bandwith:
     N1-N4: 30 mpbs
@@ -92,14 +92,14 @@ Statistics Analysis:
 Experiment 3:
 
 
-N1               N4
-  \             /
-   \	       /
+N1            N4
+  \          /
+   \	    /
     N2————N3
-   /            \
-  /              \
-N5                N6
-
+   /        \
+  /          \
+N5            N6
+#general
 
 Bandwidth: 10 Mbps for each link
 
