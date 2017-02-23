@@ -11,6 +11,7 @@ set ns [new Simulator]
 
 set traceFile [open test-trace.tr w]
 $ns trace-all $traceFile
+$ns trace-all stdout
 
 #Define a 'finish' procedure
 proc finish {} {
