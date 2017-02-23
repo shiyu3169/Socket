@@ -1,9 +1,9 @@
 #Create a simulator object
 set ns [new Simulator]
 
-#Define different colors for data flows (for NAM)
-$ns color 1 Blue
-$ns color 2 Red
+# #Define different colors for data flows (for NAM)
+# $ns color 1 Blue
+# $ns color 2 Red
 
 #Open the NAM trace file
 # set nf [open out.nam w]
@@ -28,6 +28,11 @@ set n2 [$ns node]
 set n3 [$ns node]
 set n4 [$ns node]
 
+
+#Retrieve the command line arguments
+set arg1 [lindex $argv 0] 
+set arg2 [lindex $argv 1]
+
 #Create links between the nodes
 $ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns duplex-link $n2 $n3 10Mb 10ms DropTail
@@ -46,7 +51,7 @@ $ns queue-limit $n2 $n3 5
 
 
 #Setup a TCP connection
-set tcp [new Agent/TCP]
+set tcp [new Agent/$arg1]
 $tcp set class_ 2
 $ns attach-agent $n1 $tcp
 set sink [new Agent/TCPSink]
@@ -73,7 +78,7 @@ set cbr [new Application/Traffic/CBR]
 $cbr attach-agent $udp
 $cbr set type_ CBR
 $cbr set packet_size_ 1000
-$cbr set rate_ 10mb
+$cbr set rate_ $arg2
 $cbr set random_ false
 
 

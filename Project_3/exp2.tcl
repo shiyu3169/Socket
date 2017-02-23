@@ -30,6 +30,11 @@ set n4 [$ns node]
 set n5 [$ns node]
 set n6 [$ns node]
 
+#Retrieve the command line arguments
+set arg1 [lindex $argv 0] 
+set arg2 [lindex $argv 1]
+set arg3 [lindex $argv 2]
+
 #Create links between the nodes
 $ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns duplex-link $n2 $n3 10Mb 10ms DropTail
@@ -50,7 +55,7 @@ $ns queue-limit $n2 $n3 10
 
 
 #Setup a TCP connection from N1 to N4
-set tcp [new Agent/TCP]
+set tcp [new Agent/$arg1]
 $tcp set class_ 2
 $ns attach-agent $n1 $tcp
 set sink [new Agent/TCPSink]
@@ -59,7 +64,7 @@ $ns connect $tcp $sink
 $tcp set fid_ 1
 
 #Setup a TCP connection from N5 to N6
-set tcp1 [new Agent/TCP]
+set tcp1 [new Agent/$arg2]
 $tcp1 set class_ 3
 $ns attach-agent $n5 $tcp1
 set sink1 [new Agent/TCPSink]
@@ -90,7 +95,7 @@ set cbr [new Application/Traffic/CBR]
 $cbr attach-agent $udp
 $cbr set type_ CBR
 $cbr set packet_size_ 1000
-$cbr set rate_ 1mb
+$cbr set rate_ $arg3
 $cbr set random_ false
 
 
