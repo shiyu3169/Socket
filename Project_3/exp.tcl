@@ -1,22 +1,6 @@
 #Create a simulator object
 set ns [new Simulator]
 
-<<<<<<< HEAD
-# #Define different colors for data flows (for NAM)
-# $ns color 1 Blue
-# $ns color 2 Red
-
-#Open the NAM trace file
-# set nf [open out.nam w]
-# $ns namtrace-all $nf
-
-set traceFile [open exp1-trace.tr w]
-$ns trace-all $traceFile
-$ns trace-all stdout
-
-#Define a 'finish' procedure
-=======
->>>>>>> 7cf5eae9115df53631792882e829b913ff66dbac
 proc finish {} {
         global ns 
         $ns flush-trace
