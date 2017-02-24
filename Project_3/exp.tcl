@@ -9,7 +9,7 @@ set ns [new Simulator]
 # set nf [open out.nam w]
 # $ns namtrace-all $nf
 
-set traceFile [open test-trace.tr w]
+set traceFile [open exp1-trace.tr w]
 $ns trace-all $traceFile
 $ns trace-all stdout
 
