@@ -11,30 +11,30 @@ public class exp3 {
     public final static double INTERVAL=0.25;
     private double limit=INTERVAL;
     private lineObjectAnalyzer analyzer = new lineObjectAnalyzer();
-
+    private expThreeDataPointsCollector collector=new expThreeDataPointsCollector();
 
     public void addNewLine(lineObject line){
+
+
         if (line.time>=limit){
             saveReset();
         }
         analyzer.processNewLine(line);
     }
 
-    private List<Float> saveReset(){
+    private void saveReset(){
         double time=limit;
         List<Float> currentResult=new ArrayList<>();
         currentResult.add(analyzer.getDropRate());
         currentResult.add(analyzer.getAverageRTT());
         currentResult.add((float)analyzer.getThroughput());
-
         this.limit+=INTERVAL;
         analyzer.reset();
-
-        return currentResult;
+        collector.addResult(time,currentResult);
     }
 
 
-    public static void runTCLFile(String command,  expOneDataPointsCollector collector) {
+    public  void runTCLFile(String command) {
         String line="";
         try {
             Process proc = Runtime.getRuntime().exec(command);
@@ -44,15 +44,17 @@ public class exp3 {
                 if (lineObjectAnalyzer.findLinesOfInterest(line)) {
                     //System.out.println(line);
                     lineObject newLine = new lineObject(line);
-
+                    this.addNewLine(newLine);
                 }
             }
         }catch (IOException e){
             System.out.println(e);
         }
-
-
     }
-
-
+    public static void main(String[] args){
+        exp3 e=new exp3();
+        String command="ns experiment3.tcl DropTail Reno";
+        e.runTCLFile(command);
+        System.out.print(e.collector.toString());
+    }
 }

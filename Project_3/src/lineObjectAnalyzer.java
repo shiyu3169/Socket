@@ -93,6 +93,15 @@ public class lineObjectAnalyzer {
     }
 
 
+    public void reset(){
+        numSentPackets=0;
+        startTime=time;
+        RTTs=new ArrayList<>();
+        dataReceived=0;
+        numDroppedPackets=0;
+    }
+
+
 
     public float getDropRate(){
         return (float)numDroppedPackets/(float)numSentPackets;

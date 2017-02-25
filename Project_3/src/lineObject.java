@@ -58,5 +58,4 @@ public class lineObject {
         System.out.println(test1.seq);
         System.out.println(test1.id);*/
     }
-
 }
