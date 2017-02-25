@@ -44,7 +44,7 @@ public class exp1 {
 
         expOneDataPointsCollector collector=new expOneDataPointsCollector();
 
-        int initialCBRRate=0;
+        int initialCBRRate=1;
         int interval=1;
 
 
