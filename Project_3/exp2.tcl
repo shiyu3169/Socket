@@ -34,9 +34,6 @@ $ns duplex-link $n4 $n3 10Mb 10ms DropTail
 #Set Queue Size of link (n2-n3) to 10
 $ns queue-limit $n2 $n3 10
 
-#trace the traffic between n2 and n3
-$ns trace-queue $n2 $n3 stdout
-
 #Setup a TCP connection from N1 to N4
 set tcp [new Agent/$arg1]
 $tcp set class_ 2
