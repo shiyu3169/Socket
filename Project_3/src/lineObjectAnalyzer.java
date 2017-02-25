@@ -2,6 +2,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by Ben_Big on 2/23/17.
@@ -16,6 +18,16 @@ public class lineObjectAnalyzer {
     float startTime=-1;
     float time=0;
     ArrayList<Float> RTTs=new ArrayList<>();
+
+
+
+    public static boolean findLinesOfInterest(String line){
+        Pattern pattern = Pattern.compile("^d .* tcp" +   //Dropped Packet
+                "|^r (?:\\S+ ){2}(?<to>\\S+) (?:tcp|ack) (?:\\S+ ){4}(\\k<to>)\\." +   //Packet arrives at destination
+                "|^\\- .*? (?<from>\\S+) \\d+ tcp .*? (\\k<from>)\\."); //Packet is sent out from a router
+        Matcher m = pattern.matcher(line);
+        return m.find();
+    }
 
     protected void processNewLine (lineObject line){
         this.time=line.time;

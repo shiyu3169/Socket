@@ -12,14 +12,6 @@ import java.util.regex.Pattern;
 
 public class exp1 {
 
-    public static boolean findLinesOfInterest(String line){
-        Pattern pattern = Pattern.compile("^d .* tcp" +   //Dropped Packet
-                "|^r (?:\\S+ ){2}(?<to>\\S+) (?:tcp|ack) (?:\\S+ ){4}(\\k<to>)\\." +   //Packet arrives at destination
-                "|^\\- .*? (?<from>\\S+) \\d+ tcp .*? (\\k<from>)\\."); //Packet is sent out from a router
-        Matcher m = pattern.matcher(line);
-        return m.find();
-    }
-
 
     public static void runTCLFile(String command, int CBRRate, expOneDataPointsCollector collector){
         String line="";
@@ -29,7 +21,7 @@ public class exp1 {
             lineObjectAnalyzer analyzer=new lineObjectAnalyzer();
 
             while ((line = reader.readLine()) != null) {
-                if (findLinesOfInterest(line)){
+                if (lineObjectAnalyzer.findLinesOfInterest(line)){
                     //System.out.println(line);
                     lineObject newLine=new lineObject(line);
                     analyzer.processNewLine(newLine);
@@ -57,7 +49,7 @@ public class exp1 {
 
 
         for (int rate=initialCBRRate;rate<=10;rate+=interval) {
-            String command="ns exp0.tcl TCP "+rate+"mb";
+            String command="ns exp.tcl TCP "+rate+"mb";
             runTCLFile(command, rate, collector);
         }
         System.out.println(collector.toString());
