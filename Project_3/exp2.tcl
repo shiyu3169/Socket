@@ -1,8 +1,8 @@
 #Create a simulator object
 set ns [new Simulator]
 
-set traceFile2 [open test-trace2.tr w]
-
+#trace the traffic
+$ns trace-all stdout
 
 #Define a 'finish' procedure
 proc finish {} {

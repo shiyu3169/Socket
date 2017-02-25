@@ -1,6 +1,9 @@
 #Create a simulator object
 set ns [new Simulator]
 
+#trace the traffic
+$ns trace-all stdout
+
 proc finish {} {
         global ns 
         $ns flush-trace
@@ -21,9 +24,6 @@ set arg2 [lindex $argv 1]
 $ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns duplex-link $n2 $n3 10Mb 10ms DropTail
 $ns duplex-link $n3 $n4 10Mb 10ms DropTail
-
-#trace the traffic between n2 and n3
-$ns trace-queue $n2 $n3 stdout
 
 #Set Queue Size of link (n2-n3) to 5
 $ns queue-limit $n2 $n3 5
