@@ -42,7 +42,6 @@ set ftp [new Application/FTP]
 $ftp attach-agent $tcp
 $ftp set type_ FTP
 
-
 #Setup a UDP connection
 set udp [new Agent/UDP]
 $ns attach-agent $n2 $udp
@@ -57,7 +56,7 @@ $cbr attach-agent $udp
 $cbr set type_ CBR
 $cbr set packet_size_ 1000
 $cbr set rate_ $arg2
-$cbr set random_ false
+$cbr set random_ 1
 
 #Schedule events for the CBR and FTP agents
 $ns at 0.1 "$cbr start"

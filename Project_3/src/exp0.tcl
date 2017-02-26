@@ -1,96 +1,131 @@
-# Experiment 2
-# This experiment tests TCP variant against each other for fairness.
-#
-# The network is an H pattern with a 10 Mbps CBR over the bridge,
-# and one TCP over the top and bottom.
-#
-# Variants compared are as follows:
-# Reno/Reno
-# NewReno/Reno
-# Vegas/Vegas
-# NewReno/Vegas
-
-set tcp1_id [lindex $argv 0]
-set tcp2_id [lindex $argv 1]
-set cbr_bw [lindex $argv 2]
-
+#Create a simulator object
 set ns [new Simulator]
 
-$ns trace-all stdout
-
-proc finish {} {
-    global ns
-    $ns flush-trace
-    exit 0
-}
-
-set n1 [$ns node]
-set n2 [$ns node]
-set n3 [$ns node]
-set n4 [$ns node]
-set n5 [$ns node]
-set n6 [$ns node]
-
+#Define different colors for data flows (for NAM)
 $ns color 1 Blue
 $ns color 2 Red
 
-$ns duplex-link $n1 $n2 10Mb 10ms DropTail
-$ns duplex-link $n5 $n2 10Mb 10ms DropTail
-$ns duplex-link $n2 $n3 10Mb 10ms DropTail
-$ns duplex-link $n3 $n4 10Mb 10ms DropTail
-$ns duplex-link $n3 $n6 10Mb 10ms DropTail
+#Open the NAM trace file
+set nf [open out1.nam w]
+$ns namtrace-all $nf
 
-$ns duplex-link-op $n3 $n6 orient right-down
-$ns duplex-link-op $n3 $n4 orient right-up
-$ns duplex-link-op $n2 $n3 orient right
-$ns duplex-link-op $n2 $n3 queuePos 0.5
-$ns duplex-link-op $n5 $n2 orient right-up
-$ns duplex-link-op $n1 $n2 orient right-down
+set tf [open project33.tr w]
+$ns trace-all stdout
 
-set tcp1_start [expr 10 * rand()]
-set tcp2_start [expr 10 * rand()]
+set bf [open project3a.tr w]
+#Define a 'finish' procedure
+proc finish {} {
+        global ns nf tf 
+        $ns flush-trace
+        #Close the NAM trace file
+        close $nf
+	close $tf
+        #Execute NAM on the trace file
+        #exec nam out1.nam &
+        exit 0
+}
 
-# Add CBR Flow
+
+
+#Create four nodes
+set 1 [$ns node]
+set 2 [$ns node]
+set 3 [$ns node]
+set 4 [$ns node]
+set 5 [$ns node]
+set 6 [$ns node]
+
+#Retrieve the command line arguments
+set arg1 [lindex $argv 0]      
+#set arg2 [lindex $argv 1]
+
+
+#Create links between the nodes
+$ns duplex-link $1 $2 10Mb 10ms DropTail
+$ns duplex-link $2 $3 10Mb 10ms DropTail
+$ns duplex-link $5 $2 10Mb 10ms DropTail
+$ns duplex-link $3 $6 10Mb 10ms DropTail
+$ns duplex-link $4 $3 10Mb 10ms DropTail
+
+#Set Queue Size of link (n2-n3) to 10
+$ns queue-limit $2 $3 5
+
+#Give node position (for NAM)
+$ns duplex-link-op $1 $2 orient right-down
+$ns duplex-link-op $5 $2 orient right-up
+$ns duplex-link-op $2 $3 orient right
+$ns duplex-link-op $4 $3 orient left-down
+$ns duplex-link-op $6 $3 orient left-up
+
+
+#Monitor the queue for link (n2-n3). (for NAM)
+#$ns duplex-link-op $n2 $n3 queuePos 0.5
+
+
+#Setup a TCP connection
+set tcp [new Agent/$arg1]
+$tcp set class_ 2
+$ns attach-agent $1 $tcp
+set sink [new Agent/TCPSink]
+$ns attach-agent $4 $sink
+$ns connect $tcp $sink
+$tcp set fid_ 1
+
+#Setup FTP over TCP
+set ftp [new Application/FTP]
+$ftp attach-agent $tcp
+$ftp set type_ FTP
+
+#Setup a UDP connection
 set udp [new Agent/UDP]
-set udpSink [new Agent/Null]
+$ns attach-agent $2 $udp
+set null [new Agent/Null]
+$ns attach-agent $3 $null
+$ns connect $udp $null
+$udp set fid_ 2
+
+#Setup a CBR over UDP connection
 set cbr [new Application/Traffic/CBR]
-$udp set class_ 0
-$udp set fid_ 0
-$ns attach-agent $n2 $udp
-$ns attach-agent $n3 $udpSink
-$ns connect $udp $udpSink
-# Configure CBR Bandwidth
 $cbr attach-agent $udp
-$cbr set rate_ ${cbr_bw}Mb
-$cbr set random_ 1
+$cbr set type_ CBR
+$cbr set packet_size_ 1000
+#set arg2 [lindex $argv 1]
+$cbr set rate_ [lindex $argv 1]mb
+$cbr set random_ false
 
-# Add TCP1 Flow
-set tcp1 [new Agent/$tcp1_id]
-set tcp1Sink [new Agent/TCPSink]
-set ftp1 [new Application/FTP]
-$tcp1 set class_ 1
-$ftp1 set fid_ 1
-$ns attach-agent $n1 $tcp1
-$ns attach-agent $n4 $tcp1Sink
-$ns connect $tcp1 $tcp1Sink
-# Add Traffic to TCP1 Flow
-$ftp1 attach-agent $tcp1
+proc record {} {
+	global sink null bf
+	set ns [Simulator instance]
+	set time 0.5
+	#puts "Total Bytes = [$null set bytes_]"
+	set bandwidth [$sink set bytes_]
+	#Get the current time
+	set now [$ns now]
+	#Calculating bandwidth 
+	puts $bf "$now [expr $bandwidth/$time*8/1000000]"
+	#Reset the bytes_ values on the traffic sink
+	$sink set bytes_ 0
+	#Reschedule the procedure
+	$ns at [expr $now+$time] "record"
+}
 
-# Add TCP2 Flow
-set tcp2 [new Agent/$tcp2_id]
-set sink2 [new Agent/TCPSink]
-set ftp2 [new Application/FTP]
-$tcp2 set class_ 2
-$tcp2 set fid_ 2
-$ns attach-agent $n5 $tcp2
-$ns attach-agent $n6 $sink2
-$ns connect $tcp2 $sink2
-# Add Traffic to TCP2 Flow
-$ftp2 attach-agent $tcp2
+#Schedule events for the CBR and FTP agents
+$ns at 0.1 "record"
+$ns at 0.1 "$cbr start"
+$ns at 1.0 "$ftp start"
+$ns at 8.5 "$ftp stop"
+$ns at 9.5 "$cbr stop"
 
-if {$cbr_bw > 0} { $ns at 0 "$cbr start" }
-$ns at $tcp1_start "$ftp1 start"
-$ns at $tcp2_start "$ftp2 start"
-$ns at 30 "finish"
+#Detach tcp and sink agents (not really necessary)
+#$ns at 4.5 "$ns detach-agent $n0 $tcp ; $ns detach-agent $n3 $sink"
 
+#Call the finish procedure after 5 seconds of simulation time
+$ns at 10.0 "finish"
+
+
+#Print CBR packet size and interval
+puts "CBR packet size = [$cbr set packet_size_]"
+puts "CBR interval = [$cbr set interval_]"
+#puts "Bytes received at TCP Sink = [$bytes_received set bytes_]"
+#Run the simulation
 $ns run
