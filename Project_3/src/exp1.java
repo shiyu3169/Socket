@@ -47,15 +47,15 @@ public class exp1 {
         int initialCBRRate=1;
         int interval=1;
 
-        String TCPFlavor="TCP";
+        String TCPFlavor = "";
 
         if (args.length==1){
-            TCPFlavor+="/"+args[0];
+            TCPFlavor = args[0];
         }
 
 
         for (int rate=initialCBRRate;rate<=10;rate+=interval) {
-            String command="ns exp.tcl "+TCPFlavor+" "+rate+"mb";
+            String command="/course/cs4700f12/ns-allinone-2.35/bin/ns exp.tcl "+TCPFlavor+" "+rate+"mb";
             runTCLFile(command, rate, collector);
         }
         System.out.println(collector.toString());
