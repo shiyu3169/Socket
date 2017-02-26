@@ -69,7 +69,7 @@ public class exp3 {
         for (int i=0;i<numTrials;i++) {
             exp3 e = new exp3();
             //String command="ns experiment3.tcl RED Reno";
-            String command = "/course/cs4700f12/ns-allinone-2.35/bin/ns exp3.tcl "+BufferType+" "+TCPFlavor;
+            String command = "ns experiment3.tcl "+BufferType+" "+TCPFlavor;
             e.runTCLFile(command);
             averager.addResult(e.collector.timeToResult);
         }
