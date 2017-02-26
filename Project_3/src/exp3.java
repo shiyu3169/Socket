@@ -57,14 +57,19 @@ public class exp3 {
 
         String TCPFlavor="TCP";
 
-        if (args.length==1){
-            TCPFlavor+="/"+args[0];
+        String BufferType="DropTail";
+
+        if (args.length==2){
+            BufferType=args[0];
+            //TCPFlavor=args[1];
+            TCPFlavor+="/"+args[1];
         }
 
         expThreeAverager averager=new expThreeAverager(numTrials);
         for (int i=0;i<numTrials;i++) {
             exp3 e = new exp3();
-            String command = "ns experiment3.tcl DropTail Reno";
+            //String command="ns experiment3.tcl RED Reno";
+            String command = "ns experiment3.tcl "+BufferType+" "+TCPFlavor;
             e.runTCLFile(command);
             averager.addResult(e.collector.timeToResult);
         }
