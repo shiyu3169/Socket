@@ -32,7 +32,7 @@ $ns duplex-link $n3 $n6 10Mb 10ms DropTail
 $ns duplex-link $n4 $n3 10Mb 10ms DropTail
 
 #Set Queue Size of link (n2-n3) to 10
-$ns queue-limit $n2 $n3 10
+$ns queue-limit $n2 $n3 5
 
 #Setup a TCP connection from N1 to N4
 set tcp [new Agent/$arg1]
