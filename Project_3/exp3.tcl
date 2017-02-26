@@ -24,11 +24,11 @@ set arg1 [lindex $argv 0]
 set arg2 [lindex $argv 1]
 
 #Create links between the nodes
-$ns duplex-link $n1 $n2 10Mb 10ms $arg1
+$ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns duplex-link $n2 $n3 10Mb 10ms $arg1
-$ns duplex-link $n5 $n2 10Mb 10ms $arg1
-$ns duplex-link $n3 $n6 10Mb 10ms $arg1
-$ns duplex-link $n4 $n3 10Mb 10ms $arg1
+$ns duplex-link $n5 $n2 10Mb 10ms DropTail
+$ns duplex-link $n3 $n6 10Mb 10ms DropTail
+$ns duplex-link $n4 $n3 10Mb 10ms DropTail
 
 #Set Queue Size of link (n2-n3) to 5
 $ns queue-limit $n2 $n3 10
