@@ -8,7 +8,7 @@ import java.util.Map;
 public class expThreeDataPointsCollector {
 
 
-    private HashMap<Double, List<Float>> timeToResult=new HashMap<>();
+    public  HashMap<Double, List<Float>> timeToResult=new HashMap<>();
     private double TCPStartTime=1;
 
     public void addResult(double time, List<Float> result){

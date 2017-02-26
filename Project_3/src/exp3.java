@@ -12,6 +12,7 @@ public class exp3 {
     private double limit=INTERVAL;
     private lineObjectAnalyzer analyzer = new lineObjectAnalyzer();
     private expThreeDataPointsCollector collector=new expThreeDataPointsCollector();
+    private static int numTrials=20;
 
     public void addNewLine(lineObject line){
 
@@ -52,9 +53,16 @@ public class exp3 {
         }
     }
     public static void main(String[] args){
-        exp3 e=new exp3();
-        String command="ns experiment3.tcl DropTail Reno";
-        e.runTCLFile(command);
-        System.out.print(e.collector.toString());
+
+        expThreeAverager averager=new expThreeAverager(numTrials);
+        for (int i=0;i<numTrials;i++) {
+            exp3 e = new exp3();
+            String command = "ns exp3.tcl DropTail Reno";
+            e.runTCLFile(command);
+            averager.addResult(e.collector.timeToResult);
+        }
+        System.out.println(averager);
     }
+
+
 }
