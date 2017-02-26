@@ -54,10 +54,17 @@ public class exp3 {
     }
     public static void main(String[] args){
 
+
+        String TCPFlavor="TCP";
+
+        if (args.length==1){
+            TCPFlavor+="/"+args[0];
+        }
+
         expThreeAverager averager=new expThreeAverager(numTrials);
         for (int i=0;i<numTrials;i++) {
             exp3 e = new exp3();
-            String command = "ns exp3.tcl DropTail Reno";
+            String command = "ns experiment3.tcl DropTail Reno";
             e.runTCLFile(command);
             averager.addResult(e.collector.timeToResult);
         }

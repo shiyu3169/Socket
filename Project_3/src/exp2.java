@@ -56,9 +56,15 @@ public class exp2 {
         int initialCBRRate = 1;
         int interval = 1;
 
+        String TCPFlavor="TCP";
+
+        if (args.length==1){
+            TCPFlavor+="/"+args[0];
+        }
+
 
         for (int rate = initialCBRRate; rate <= 10; rate += interval) {
-            String command = "ns exp.tcl TCP " + rate + "mb";
+            String command = "ns exp.tcl "+TCPFlavor+" "+ rate + "mb";
             runTCLFile(command, rate, collector);
         }
         System.out.println(collector.toString());
