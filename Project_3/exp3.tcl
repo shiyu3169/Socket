@@ -22,14 +22,13 @@ set n6 [$ns node]
 #Retrieve the command line arguments
 set arg1 [lindex $argv 0] 
 set arg2 [lindex $argv 1]
-set arg3 [lindex $argv 2]
 
 #Create links between the nodes
-$ns duplex-link $n1 $n2 10Mb 10ms DropTail
+$ns duplex-link $n1 $n2 10Mb 10ms $arg1
 $ns duplex-link $n2 $n3 10Mb 10ms $arg1
-$ns duplex-link $n5 $n2 10Mb 10ms DropTail
-$ns duplex-link $n3 $n6 10Mb 10ms DropTail
-$ns duplex-link $n4 $n3 10Mb 10ms DropTail
+$ns duplex-link $n5 $n2 10Mb 10ms $arg1
+$ns duplex-link $n3 $n6 10Mb 10ms $arg1
+$ns duplex-link $n4 $n3 10Mb 10ms $arg1
 
 #Set Queue Size of link (n2-n3) to 5
 $ns queue-limit $n2 $n3 5
@@ -39,7 +38,7 @@ set tcp [new Agent/$arg2]
 $tcp set class_ 2
 $tcp set window_ 15
 $ns attach-agent $n1 $tcp
-set sink [new Agent/TCPSink]
+set sink [if {$arg2 == "Sack1"} {new Agent/TCPSink} {new Agent/TCPSink/Sack1}]
 $ns attach-agent $n4 $sink
 $ns connect $tcp $sink
 $tcp set fid_ 1
@@ -63,15 +62,14 @@ set cbr [new Application/Traffic/CBR]
 $cbr attach-agent $udp
 $cbr set type_ CBR
 $cbr set packet_size_ 1000
-$cbr set rate_ $arg3
+$cbr set rate_ 8mb
 $cbr set random_ false
 
 
 #Schedule events for the CBR and FTP agents
+set start [expr 1 + 5 * rand()]
 $ns at 0.1 "$cbr start"
-$ns at 1.0 "$ftp start"
-$ns at 8.0 "$ftp stop"
-$ns at 9.0 "$cbr stop"
+$ns at start "$ftp start"
 
 #Call the finish procedure after 10 seconds of simulation time
 $ns at 10 "finish"
