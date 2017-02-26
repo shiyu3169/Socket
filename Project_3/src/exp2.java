@@ -33,9 +33,9 @@ public class exp2 {
             collector.addRTT(CBRRate,analyzerOne.getAverageRTT(),1);
 
 
-            collector.addDropRate(CBRRate,analyzerOne.getDropRate(),2);
-            collector.addThroughput(CBRRate,analyzerOne.getThroughput(),2);
-            collector.addRTT(CBRRate,analyzerOne.getAverageRTT(),2);
+            collector.addDropRate(CBRRate,analyzerTwo.getDropRate(),2);
+            collector.addThroughput(CBRRate,analyzerTwo.getThroughput(),2);
+            collector.addRTT(CBRRate,analyzerTwo.getAverageRTT(),2);
 
 
             /*
@@ -56,15 +56,18 @@ public class exp2 {
         int initialCBRRate = 1;
         int interval = 1;
 
-        String TCPFlavor="TCP";
+        String TCPFlavorOne="TCP";
+        String TCPFlavorTwo="TCP";
 
-        if (args.length==1){
-            TCPFlavor+="/"+args[0];
+
+        if (args.length==2){
+            TCPFlavorOne=args[0];
+            TCPFlavorTwo=args[0];
         }
 
 
         for (int rate = initialCBRRate; rate <= 10; rate += interval) {
-            String command = "ns exp.tcl "+TCPFlavor+" "+ rate + "mb";
+            String command = "ns exp2.tcl "+TCPFlavorOne+" "+TCPFlavorTwo+" "+ rate + "mb";
             runTCLFile(command, rate, collector);
         }
         System.out.println(collector.toString());
