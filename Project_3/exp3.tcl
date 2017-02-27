@@ -65,9 +65,8 @@ $cbr set packet_size_ 1000
 $cbr set rate_ 8mb
 $cbr set random_ 1
 
-
 #Schedule events for the CBR and FTP agents
-set start [expr 1 + 5 * rand()]
+set start [expr 1 + rand()]
 $ns at 0.1 "$cbr start"
 $ns at start "$ftp start"
 

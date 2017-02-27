@@ -77,12 +77,11 @@ $cbr set random_ 1
 
 
 #Schedule events for the CBR and FTP agents
+set start [expr 1 + rand()]
+set start2 [expr 1 + rand()]
 $ns at 0.1 "$cbr start"
-$ns at 1.0 "$ftp start"
-$ns at 1.0 "$ftp1 start"
-$ns at 8.0 "$ftp stop"
-$ns at 8.0 "$ftp1 stop"
-$ns at 9.0 "$cbr stop"
+$ns at start "$ftp start"
+$ns at start2 "$ftp1 start"
 
 #Call the finish procedure after 10 seconds of simulation time
 $ns at 10 "finish"
