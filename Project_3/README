@@ -7,8 +7,8 @@ N1            N4
    \	    /
     N2————N3
 
-Bandwidth: N1-N4: 30 Mbps
-           N2-N3: 10 Mbps
+Bandwidth: N1-N4: 10Mbps
+           N2-N3: 10Mbps
 
 
 
@@ -23,7 +23,7 @@ Experiment:
 	Step 2:
 		Initiate CBR between N2-N3 at flow rate of 1 Mbps, make TCP measurements
 	Step3:
-		while ( 10 Mbps bottleneck capacity of N2, N3 is not reached):
+		while ( 10Mbps bottleneck capacity of N2, N3 is not reached):
 				increase CBR flow rate by 1 Mbps
 				do TCP measurements
 
@@ -54,9 +54,9 @@ N1            N4
 N5            N6
 
 Bandwith:
-    N1-N4: 30 mpbs
-	N5-N6: 30 mpbs
-	N2-N3: 10 mbps
+    N1-N4:10 mpbs
+	N5-N6:10 mpbs
+	N2-N3:10 mbps
 
 
 Measurements: N1->N4 and N5->N6 TCP throughput, drop rate and latency
@@ -123,3 +123,7 @@ Plots:
 Statistics Analysis:
     For each queueing mechanism:
         Applying T-test on throughput, drop rate and latency data for TCP and CBR to verify the data are statistically significant
+
+
+Job Seperating:
+Zhongxi was respobsible for Java code to read trace data from TCL files and calculate Throughput, RTT and Drop Rate. And Shiyu was writing the code for TCL files and data collecting, calculation and analyzing. 
