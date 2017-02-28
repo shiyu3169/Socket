@@ -80,8 +80,8 @@ $cbr set random_ 1
 set start [expr 1 + rand()]
 set start2 [expr 1 + rand()]
 $ns at 0.1 "$cbr start"
-$ns at start "$ftp start"
-$ns at start2 "$ftp1 start"
+$ns at $start "$ftp start"
+$ns at $start2 "$ftp1 start"
 
 #Call the finish procedure after 10 seconds of simulation time
 $ns at 10 "finish"

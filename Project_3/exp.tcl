@@ -25,7 +25,7 @@ $ns duplex-link $n1 $n2 10Mb 10ms DropTail
 $ns duplex-link $n2 $n3 10Mb 10ms DropTail
 $ns duplex-link $n3 $n4 10Mb 10ms DropTail
 
-#Set Queue Size of link (n2-n3) to 5
+#Set Queue Size of link (n2-n3) to 10
 $ns queue-limit $n2 $n3 10
 
 #Setup a TCP connection
@@ -59,9 +59,9 @@ $cbr set rate_ $arg2
 $cbr set random_ 1
 
 #Schedule events for the CBR and FTP agents
-set start [expr 1 + rand()]
-$ns at 0.1 "$cbr start"
-$ns at 1.0 "$ftp start"
+$ns at 0 "$cbr start" 
+set tcp1_start [expr 1 + rand()]
+$ns at $tcp1_start "$ftp start"
 
 
 #Call the finish procedure after 10 seconds of simulation time
