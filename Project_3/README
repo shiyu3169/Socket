@@ -126,4 +126,8 @@ Statistics Analysis:
 
 
 Job Seperating:
-Zhongxi was respobsible for Java code to read trace data from TCL files and calculate Throughput, RTT and Drop Rate. And Shiyu was writing the code for TCL files and data collecting, calculation and analyzing. 
+For expirement part:
+Zhongxi was respobsible for Java code to read trace data from TCL files and calculate Throughput, RTT and Drop Rate. 
+Shiyu wrote the code for TCL files, collected and analyzed data.
+For the report:
+Zhongxi finished the intoduction and experiment 1 and more than half of conclusion. And Shiyu wrote experiment 2, experiment 3 and rest part.
