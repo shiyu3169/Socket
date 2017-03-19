@@ -15,6 +15,9 @@ class IPv4Packet:
 
     PACKET_MIN_SIZE=20
     PACKET_MAX_SIZE=65535
+    HEADER_MIN_SIZE=5
+    HEADER_MAX_SIZE=15
+
 
     def __init__(self,source,destination,data):
 
@@ -29,7 +32,7 @@ class IPv4Packet:
 
         #zeroth word (except total length)
         self.version=4
-        self.ihl=5
+        self.ihl=IPv4Packet.HEADER_MIN_SIZE
         self.dscp=0
         self.ecn=0
 
@@ -73,30 +76,66 @@ class IPv4Packet:
             print("Too many bytes for one packet") #ToDo: should the message just be printed or raised as an Exception
             return None
 
-        first_five_words_of_header=struct.unpack("!BBHHHBBH4s4s",bytes)
+        first_five_words_of_header=struct.unpack("!BBHHHBBH4s4s",bytes[:4*IPv4Packet.PACKET_MIN_SIZE])
         source_ip_of_bytes=first_five_words_of_header[8]
         destination_ip_of_bytes=first_five_words_of_header[9]
         temporary_data=b""
-        packet_generated_from_bytes=cls(socket.inet_ntoa(source_ip_of_bytes),
+        packet=cls(socket.inet_ntoa(source_ip_of_bytes),
                                         socket.inet_ntoa(destination_ip_of_bytes),
                                         temporary_data)
-        packet_generated_from_bytes.version=first_five_words_of_header[0]>>4
-        packet_generated_from_bytes.ihl=first_five_words_of_header[0]& 0x0f
-        packet_generated_from_bytes.dscp=first_five_words_of_header[1]>>2
-        packet_generated_from_bytes.ecn=first_five_words_of_header[1]& 0x03
-        packet_generated_from_bytes.total_length=first_five_words_of_header[2] & 0xffff
 
 
+        packet.version=first_five_words_of_header[0]>>4
+        packet.ihl=first_five_words_of_header[0]& 0x0f
+
+
+        if packet.ihl>IPv4Packet.HEADER_MAX_SIZE:
+            print("Header size specified in the field is larger than what is allowed")
+            return None
+        elif packet.ihl<IPv4Packet.HEADER_MIN_SIZE:
+            print("Header size specified in the field is smaller than what is allowed")
+            return None
+
+        packet.dscp=first_five_words_of_header[1]>>2
+        packet.ecn=first_five_words_of_header[1]& 0x03
+
+
+        packet.total_length=first_five_words_of_header[2] & 0xffff
+
+        if len(bytes)!=packet.total_length:
+            print("Total length field of the packet does not match the acutal length")
+            return None
+
+        packet.id=first_five_words_of_header[3]
+
+
+        packet.flag_reserved=(first_five_words_of_header[4]>>13) & 0x04
+        packet.flag_dont_fragment=(first_five_words_of_header[4]>>13) & 0x02
+        packet.flag_more_fragments=(first_five_words_of_header[4]>>13) & 0x01
+        packet.fragment_offset=(first_five_words_of_header[4]>>13) & 0x1fff
+
+        packet.ttl=first_five_words_of_header[5]
+
+        packet.protocol=first_five_words_of_header[6]
+
+        packet.header_checksum=first_five_words_of_header[7]
+
+        packet.options=None
+
+        if packet.ihl>IPv4Packet.HEADER_MIN_SIZE:
+            packet.options=bytes[IPv4Packet.HEADER_MIN_SIZE*4:packet.ihl*4]
+
+        packet.data=bytes[packet.ihl*4:]
+
+        return packet
 
 
 
 
     def convert_packet_to_bytes(self):
-
-
-
+        print()
 
 
 
     def checksum(self):
-
+        print()
