@@ -17,6 +17,7 @@ class IPv4Packet:
     PACKET_MAX_SIZE=65535
     HEADER_MIN_SIZE=5
     HEADER_MAX_SIZE=15
+    HEADER_PATTERN="!BBHHHBBH4s4s"
 
 
     def __init__(self,source,destination,data):
@@ -76,7 +77,8 @@ class IPv4Packet:
             print("Too many bytes for one packet") #ToDo: should the message just be printed or raised as an Exception
             return None
 
-        first_five_words_of_header=struct.unpack("!BBHHHBBH4s4s",bytes[:4*IPv4Packet.PACKET_MIN_SIZE])
+        first_five_words_of_header=struct.unpack(IPv4Packet.HEADER_PATTERN,
+                                                 bytes[:4*IPv4Packet.PACKET_MIN_SIZE])
         source_ip_of_bytes=first_five_words_of_header[8]
         destination_ip_of_bytes=first_five_words_of_header[9]
         temporary_data=b""
@@ -131,9 +133,32 @@ class IPv4Packet:
 
 
 
+    def get_header_in_bytes(self):
+        version_ihl = (((self.version & 0x0f) << 4) | (self.ihl & 0x0f)) & 0xff
+        dscp_ecn = (self.dscp << 2) | (self.ecn)
+        flags = (self.flag_reserved << 2) | (self.flag_dont_fragment << 1) | (self.flag_more_fragments)
+        flags_fragmentOffset = (((flags & 0x07) << 13) | (self.fragment_offset & 0x1fff)) & 0xffff
+
+        header = struct.pack(IPv4Packet.HEADER_PATTERN,
+                             version_ihl,
+                             dscp_ecn,
+                             self.total_length & 0xffff,
+                             self.id & 0xffff,
+                             flags_fragmentOffset,
+                             self.ttl & 0xff,
+                             self.protocol & 0xff,
+                             self.header_checksum & 0xffff,
+                             socket.inet_aton(self.source_ip),
+                             socket.inet_aton(self.destination_ip))
+        if self.options is not None:
+            header += self.options
+        return header
+
+
 
     def convert_packet_to_bytes(self):
-        print()
+        bytes=self.get_header_in_bytes()+self.data
+        return bytes
 
 
 
