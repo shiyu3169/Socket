@@ -2,3 +2,7 @@
 */.idea
 *.tr
 *.class
+Project_4/http_browser/
+Project_4/tcp/
+Project_4/rawhttpget
+Project_4/rawhttpget.py
