@@ -33,7 +33,7 @@ class TCPPacket:
         self.data = data
 
     @classmethod
-    def build(cls, data, src_addr, dest_addr):
+    def unpack(cls, data, src_addr, dest_addr):
         """
         Create a TCP packet from bytes aquired via the network (or any other source).
         """
@@ -71,7 +71,7 @@ class TCPPacket:
         packet.check = check
         packet.urgptr = urgent_ptr
 
-        packet.set_options_from_bytes(data[20: data_offset * 4])
+        packet.set_options(data[20: data_offset * 4])
         packet.data = data[data_offset * 4:]
 
         packet.bytes = data
@@ -91,22 +91,7 @@ class TCPPacket:
                 (self.urg << 5)
         return flags
 
-    @property
-    def header(self):
-        """
-        Construct the TCP packet header
-        """
-        dataoffset_resvd_flags = 0
-        dataoffset_resvd_flags = dataoffset_resvd_flags | ((self.data_offset & 0b1111) << 12)
-        dataoffset_resvd_flags = dataoffset_resvd_flags | (self.flags & 0b111111)
-        dataoffset_resvd_flags = dataoffset_resvd_flags.to_bytes(2, 'big')
-
-        header = struct.pack('!HHLL2sHHH', self.src[1], self.dest[1], self.seq, self.ack_num, dataoffset_resvd_flags,
-                             self.window, self.check, self.urgptr)
-        options = self.generate_options()
-        return header + options
-
-    def set_options_from_bytes(self, options_bytes):
+    def set_options(self, options_bytes):
         """
         Set the options from bytes
         """
@@ -115,13 +100,10 @@ class TCPPacket:
         offset_bytes = 4 * (self.data_offset - 5)
         while index < offset_bytes:
             byte = options_bytes[index]
-            if byte == 0:
-                options.append({'kind': 0})
+            if byte == 0 or byte == 1:
+                options.append({'kind': byte})
                 index += 1
                 break
-            elif byte == 1:
-                options.append({'kind': 1})
-                index += 1
             elif byte == 2:
                 length = options_bytes[index + 1]
                 value = int.from_bytes(options_bytes[index + 2: index + length], 'big')
@@ -155,13 +137,19 @@ class TCPPacket:
 
         return options
 
-    def to_bytes(self):
+    def build(self):
         """
-        The main purpose of this class.
+        build the data in byte
         """
-        bytes = self.header
-        bytes += self.data
-        return bytes
+        dataoffset_resvd_flags = 0
+        dataoffset_resvd_flags = dataoffset_resvd_flags | ((self.data_offset & 0b1111) << 12)
+        dataoffset_resvd_flags = dataoffset_resvd_flags | (self.flags & 0b111111)
+        dataoffset_resvd_flags = dataoffset_resvd_flags.to_bytes(2, 'big')
+
+        header = struct.pack('!HHLL2sHHH', self.src[1], self.dest[1], self.seq, self.ack_num, dataoffset_resvd_flags,
+                             self.window, self.check, self.urgptr)
+
+        return header + self.generate_options() + self.data
 
     def checksum(self):
         """
@@ -169,7 +157,29 @@ class TCPPacket:
         """
         pseudo_header = struct.pack("!4s4sBBH", socket.inet_aton(self.src[0]), socket.inet_aton(self.dest[0]), 0, 6,
                                     len(self))
-        self.check = checksum(pseudo_header + self.to_bytes())
+        check = 0
+        bytes = pseudo_header + self.build()
+        bytes_length = len(bytes)
+        i = 0
+        
+        while bytes_length > 1:
+            # Add all the shorts together
+            b = bytes[i:i + 2]
+            val = int.from_bytes(b, 'big')
+            check += val
+            bytes_length -= 2
+            i += 2
+
+        if bytes_length > 0:
+            # Add the last odd byte if there is one
+            check += bytes[i] << 8
+
+        check = (check >> 16) + (check & 0xffff)
+        check += check >> 16
+
+        # Flip the sum
+        check = ~check & 0xffff
+        self.check = check
 
     def __len__(self):
         """
@@ -177,38 +187,3 @@ class TCPPacket:
         """
         data_len = len(self.data)
         return self.data_offset * 4 + data_len
-
-    def is_valid(self, src, dest):
-        """
-        Does the packet have a valid checksum and is it from
-        src to dest?
-        """
-        self.checksum()
-        return self.check == 0 and self.src == src and self.dest == dest
-
-
-def checksum(bytes):
-    """
-    Generate the ones complement of a byte sequence
-    """
-    s = 0
-    counter = len(bytes)
-    i = 0
-    while counter > 1:
-        # Add all the shorts together
-        b = bytes[i:i + 2]
-        val = int.from_bytes(b, 'big')
-        s += val
-        counter -= 2
-        i += 2
-
-    if counter > 0:
-        # Add the last odd byte if there is one
-        s += bytes[i] << 8
-
-    s = (s >> 16) + (s & 0xffff)
-    s += s >> 16
-
-    # Flip the sum
-    s = ~s & 0xffff
-    return s

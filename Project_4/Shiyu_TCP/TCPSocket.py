@@ -150,13 +150,12 @@ class TCPSocket:
         p = TCPPacket(self.src, self.dest, 0, self.seq)
         p.fin = 1
         p.checksum()
-        self.socket.send(p.to_bytes())
+        self.socket.send(p.build())
 
     def loop(self):
         """
         Thread target for running TCP separate from application.
         """
-
         while self.state != STATE.CLOSED:
             self.send_new_packets()
 
@@ -171,7 +170,8 @@ class TCPSocket:
                 self.close()
                 break
 
-            self.check_timeouts()
+            if self.RTT is not None:
+                self.timeout()
 
             # Gotta avoid busy wait
             time.sleep(50.0 / 1000)
@@ -188,15 +188,17 @@ class TCPSocket:
         syn = TCPPacket(self.src, self.dest, 0, self.seq)
         syn.syn = 1
         syn.checksum()
+
+        self.socket.send(syn.build())
         sent_time = datetime.datetime.now()
-        self.socket.send(syn.to_bytes())
 
         # Get packets until we see a SYN_ACK from the destination to us.
+        p = None
         while True:
             p = self.socket.recv()
             if p is None:
                 continue
-            p = TCPPacket.build(p, self.dest[0], self.src[0])
+            p = TCPPacket.unpack(p, self.dest[0], self.src[0])
             if p.src == self.dest and p.dest == self.src and p.syn and p.ack:
                 break
             time.sleep(10.0 / 1000)
@@ -222,7 +224,7 @@ class TCPSocket:
         ack = TCPPacket(self.src, self.dest, self.seq, self.next_packet['next_expected_seq'])
         ack.ack = 1
         ack.checksum()
-        self.socket.send(ack.to_bytes())
+        self.socket.send(ack.build())
 
         self.state = STATE.OPEN
 
@@ -230,23 +232,18 @@ class TCPSocket:
         """
         Convert the packet to an object.
         """
-        packet = TCPPacket.build(packet, self.dest[0], self.src[0])
+        packet = TCPPacket.unpack(packet, self.dest[0], self.src[0])
+        packet.checksum()
 
         # Check validity
-        if not packet.is_valid(self.dest, self.src):
+        if not (packet.check == 0 and packet.src == self.dest and packet.dest == self.src):
             return
-
-        # Pull out MSS Information
-        for o in packet.options:
-            if o['kind'] == 2 and o['length'] == 4:
-                self.MSS = o['value']
-                break
 
         # Handle ACK
         if packet.ack and packet.ack_num >= self.seq:
             self.handle_ack(packet)
 
-        # ACK this packet if it contains data or FIN or SYN
+        # Check if it contains data or FIN or SYN
         if (len(packet.data) > 0) or packet.syn:
             self.next_packet['ack'] = 1
 
@@ -264,9 +261,9 @@ class TCPSocket:
                 else:
                     self.out_of_order_packets.put(p)
                     break
-        elif len(packet.data) > 0 and packet.seq > self.next_packet[
-            'next_expected_seq'] and packet.seq not in self.seen_seq_nums:
-            # Packet is too early, store it.
+        elif len(packet.data) > 0 and packet.seq > self.next_packet['next_expected_seq'] \
+                and packet.seq not in self.seen_seq_nums:
+            # Packet is out of order
             self.out_of_order_packets.put(packet)
             self.seen_seq_nums.add(packet.seq)
 
@@ -275,7 +272,7 @@ class TCPSocket:
             p = TCPPacket(self.src, self.dest, self.seq, self.next_packet['next_expected_seq'])
             p.ack = 1
             p.checksum()
-            self.socket.send(p.to_bytes())
+            self.socket.send(p.build())
 
         self.dest_window = packet.window
 
@@ -317,14 +314,11 @@ class TCPSocket:
                 else:
                     self.RTT = ALPHA * self.RTT + (1 - ALPHA) * packet_rtt.total_seconds() * 1000
 
-    def check_timeouts(self):
+    def timeout(self):
         """
         Check to see if any previously sent packets have timed out while waiting to be
         ACKed
         """
-        if self.RTT is None:
-            return
-
         timeout_packets = []
         now = datetime.datetime.now()
         for p in self.packets_in_network:
@@ -345,8 +339,8 @@ class TCPSocket:
         Send new packets containing the data passed into the socket via send,
         and resend timed out packets. Do so until the window if full.
         """
+        # space = min(self.congestion_window, self.dest_window) / self.MSS - len(self.packets_in_network)
         space = min(self.congestion_window, self.dest_window) / self.MSS - len(self.packets_in_network)
-
         while not self.resend_queue.empty() and space > 0:
             self.resend_packet()
 
@@ -360,9 +354,7 @@ class TCPSocket:
         """
         seq, packet = self.resend_queue.get()
 
-        max_packet_size = self.MSS
-
-        if len(packet) <= max_packet_size:
+        if len(packet) <= self.MSS:
             self.socket.send(packet.to_bytes())
             self.packets_in_network.add((packet, datetime.datetime.now(), True))
             self.current_resend_packet = None
@@ -389,7 +381,7 @@ class TCPSocket:
         packet.ack = True
 
         packet.checksum()
-        packet_bytes = packet.to_bytes()
+        packet_bytes = packet.build()
 
         # Track that we're sending this packet.
         self.packets_in_network.add((packet, datetime.datetime.now(), False))
