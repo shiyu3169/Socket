@@ -67,7 +67,7 @@ public class exp2 {
 
 
         for (int rate = initialCBRRate; rate <= 10; rate += interval) {
-            String command = "ns exp2.tcl "+TCPFlavorOne+" "+TCPFlavorTwo+" "+ rate + "mb";
+            String command = "/course/cs4700f12/ns-allinone-2.35/bin/ns exp2.tcl "+TCPFlavorOne+" "+TCPFlavorTwo+" "+ rate + "mb";
             runTCLFile(command, rate, collector);
         }
         System.out.println(collector.toString());
