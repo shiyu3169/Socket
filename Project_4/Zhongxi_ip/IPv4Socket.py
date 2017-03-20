@@ -6,6 +6,10 @@ from IPv4Packet import IPv4Packet
 
 
 class IPv4Socket:
+
+    LOCAL_HOST_IP="127.0.0.1"
+
+
     def __init__(self, address):
         self.is_connected=False
 
@@ -69,7 +73,16 @@ class IPv4Socket:
             if not self.is_connected:
                 break;
             try:
+                response=self.receive_socket.recvfrom(IPv4Packet.PACKET_MAX_SIZE)
+            except:
+                print("Error happens when reading from socket")
+            new_packet=IPv4Packet.generate_packet_from_received_bytes(response[0])
 
+            if new_packet.destination_ip not in [IPv4Socket.LOCAL_HOST_IP, self.source_ip] or \
+                new_packet.source_ip!=self.destionation_ip:
+                print("Drop a packet destined for the wrong address")
+                continue
+            checksum=new_packet.checksum()
 
 
 
