@@ -1,11 +1,6 @@
 import struct
 import socket
 
-from tcp.Exceptions import MalformedPacketException
-
-
-__author__ = 'njhazelh'
-
 
 class TCPPacket:
     def __init__(self, src, dest, seq, ack_num=0, data=b''):
