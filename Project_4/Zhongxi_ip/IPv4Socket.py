@@ -55,7 +55,8 @@ class IPv4Socket:
 
 
 
-    def terminate(self):
+    #ToDo: It looks this function is never used in DASHEN's code
+    def shutdown(self):
         self.is_connected=False
         try:
             self.receive_socket.shutdown()
@@ -82,7 +83,28 @@ class IPv4Socket:
                 new_packet.source_ip!=self.destionation_ip:
                 print("Drop a packet destined for the wrong address")
                 continue
-            checksum=new_packet.checksum()
+
+            if new_packet.checksum()!=0:
+                #ToDo: if the checksum is wrong, does it make sense to continue parsing it?
+                print("Drop a packet whose checksum does not match header")
+            if new_packet.fragment_offset==0 and new_packet.flag_more_fragments==0:
+                self.complete_packets_queue.put(new_packet)
+            elif new_packet.flag_more_fragments==1:
+                if new_packet.id not in self.partial_packets_buffer:
+                    new_queue=queue.PriorityQueue()
+                    new_queue.put((new_packet.fragment_offset, new_packet))
+                    self.partial_packets_buffer[new_packet.id]=new_queue
+                else:
+                    self.partial_packets_buffer[new_packet.id].put((new_packet.fragment_offset, new_packet))
+
+
+
+    def is_complete(self,id):
+
+
+
+    def assemble_packet(self,id):
+
 
 
 
@@ -93,4 +115,5 @@ class IPv4Socket:
 
     #ToDo: change the name to send_data
     def send(self,data):
+        #ToDo: all the outgoing packet has checksum field as 0, no good
 
