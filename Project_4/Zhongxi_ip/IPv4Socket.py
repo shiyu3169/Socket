@@ -68,7 +68,6 @@ class IPv4Socket:
 
 
 
-
     def loop_for_incoming_data(self):
         while 1:
             if not self.is_connected:
@@ -88,7 +87,7 @@ class IPv4Socket:
                 #ToDo: if the checksum is wrong, does it make sense to continue parsing it?
                 print("Drop a packet whose checksum does not match header")
             if new_packet.fragment_offset==0 and new_packet.flag_more_fragments==0:
-                self.complete_packets_queue.put(new_packet)
+                self.complete_packets_queue.put(new_packet.data)
             elif new_packet.flag_more_fragments==1:
                 if new_packet.id not in self.partial_packets_buffer:
                     new_queue=queue.PriorityQueue()
@@ -96,16 +95,33 @@ class IPv4Socket:
                     self.partial_packets_buffer[new_packet.id]=new_queue
                 else:
                     self.partial_packets_buffer[new_packet.id].put((new_packet.fragment_offset, new_packet))
+                    self.assemble_if_complete(new_packet.id)
 
 
+    def assemble_if_complete(self,id):
+        queue_for_packet= self.partial_packets_buffer[id].copy()
+        last_index=0
+        data=b''
+        while not queue_for_packet.empty():
+            current_partial_packet=queue_for_packet.get()
+            if last_index!=current_partial_packet.fragment_offset:
+                return
+            last_index += (current_partial_packet.total_length-current_partial_packet.ihl*4)/8
+            data+=current_partial_packet.data
+        del self.partial_packets_buffer[id]
+        self.complete_packets_queue.put(data)
 
-    def is_complete(self,id):
 
-
-
+    '''
     def assemble_packet(self,id):
-
-
+        data=b''
+        queue_for_packet=self.partial_packets_buffer[id]
+        while not queue_for_packet.empty():
+            current_partial_packet=queue_for_packet.get()
+            data+=current_partial_packet.data
+        del self.partial_packets_buffer[id]
+        self.complete_packets_queue.put(data)
+    '''
 
 
     #ToDo: change the name to recv_data
