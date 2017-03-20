@@ -163,4 +163,20 @@ class IPv4Packet:
 
 
     def checksum(self):
-        print()
+        header=self.get_header_in_bytes()
+        #ToDo: change how checksum is done
+        sum=0
+        count=len(bytes)
+        i=0
+        while count>1:
+            b=header[i:i+2]
+            val=int.from_bytes(b,'big')
+            sum+=val
+            count-=2
+            i+=2
+        if count>0:
+            sum+=header[i]<<8
+        while (sum>>16)>0:
+            sum=(sum&0xffff) +(sum>>16)
+
+        return sum^0xffff
