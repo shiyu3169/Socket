@@ -15,19 +15,6 @@ def get_ip(ifname='eth0'):
     ip = socket.inet_ntoa(fcntl.ioctl(s.fileno(), 0x8915, data)[20:24])
     return ip
 
-ALPHA = 0.875  # NEW_RTT = ALPHA * OLD_RTT + (1 - ALPHA) * PACKET_RTT
-
-
-class STATE:
-    NEW = 0
-    SYN_SENT = 1
-    OPEN = 2
-    FIN_SENT = 3
-    CLOSED = 4
-    RST = 5
-    RST_RECEIVED = 6
-    FIN_RECEIVED = 7
-
 
 class TCPSocket:
     """
@@ -37,10 +24,10 @@ class TCPSocket:
     def __init__(self):
         self.socket = None
         self.src = (get_ip(), random.randrange(0, 1 << 16))
-        self.state = STATE.NEW
         self.thread = None
         self.data_send_queue = queue.Queue()
         self.data_recv_queue = queue.Queue()
+        self.connected = False
 
     def connect(self, dest):
         """
@@ -79,7 +66,8 @@ class TCPSocket:
         # This is the remainder of the data for a packet that we already sent part of.
         self.current_send_packet = None
 
-        # This is the collection of packets that are currently in the network.
+        # collection of packets that are currently in the network, the set has three elements,
+        # packet, start time and a boolean to show it is being resent
         self.packets_in_network = set()
 
         # This is a queue of packets which must be resent, sorted into seq number order
@@ -116,16 +104,15 @@ class TCPSocket:
         Get data from the socket
         """
         packet = b''
-        if self.state == STATE.RST:
+        if not self.connected:
             raise Exception("Socket closed")
 
         if self.current_recv_packet is None:
             while True:
-                if self.state == STATE.RST:
+                if not self.connected:
                     raise Exception("Socket closed")
                 if not self.data_recv_queue.empty():
                     packet += self.data_recv_queue.get(block=False)
-                    time.sleep(0)
                 else:
                     break
             if max_bytes is not None and len(packet) > max_bytes:
@@ -141,10 +128,9 @@ class TCPSocket:
 
         return packet
 
-
     def close(self):
         """
-        Sent the shutdown signal to clean up the connection
+        send the fin packet to close the connection
         """
         self.next_packet['fin'] = 1
         p = TCPPacket(self.src, self.dest, 0, self.seq)
@@ -156,7 +142,7 @@ class TCPSocket:
         """
         Thread target for running TCP separate from application.
         """
-        while self.state != STATE.CLOSED:
+        while self.connected:
             self.send_new_packets()
 
             while True:
@@ -166,7 +152,7 @@ class TCPSocket:
                 else:
                     break
 
-            if self.state == STATE.RST_RECEIVED or self.state == STATE.FIN_RECEIVED:
+            if not self.connected:
                 self.close()
                 break
 
@@ -174,7 +160,7 @@ class TCPSocket:
                 self.timeout()
 
             # Gotta avoid busy wait
-            time.sleep(50.0 / 1000)
+            time.sleep(0.050)
 
     def handshake(self):
         """
@@ -201,7 +187,7 @@ class TCPSocket:
             p = TCPPacket.unpack(p, self.dest[0], self.src[0])
             if p.src == self.dest and p.dest == self.src and p.syn and p.ack:
                 break
-            time.sleep(10.0 / 1000)
+            time.sleep(0.010)
 
         # Calculate Initial RTT
         arrive_time = datetime.datetime.now()
@@ -226,7 +212,7 @@ class TCPSocket:
         ack.checksum()
         self.socket.send(ack.build())
 
-        self.state = STATE.OPEN
+        self.connected = True
 
     def parse_packet(self, packet):
         """
@@ -276,35 +262,33 @@ class TCPSocket:
 
         self.dest_window = packet.window
 
-        if packet.fin:
-            self.state = STATE.FIN_RECEIVED
-        elif packet.rst:
-            self.state = STATE.RST_RECEIVED
+        if packet.fin or packet.rst:
+            self.connected = False
 
     def handle_ack(self, packet):
         """
         Handles the ACK clocking part of TCP.
         """
         # Increase the congestion window.
-        if self.congestion_window < self.ss_thresh:
+        if self.ss_thresh > self.congestion_window:
             self.congestion_window += 1
         else:
-            self.congestion_window += 1 / self.congestion_window
+            self.congestion_window += (1 / self.congestion_window)
 
         self.seq = packet.ack_num
 
-        # Find packets that were just acked.
+        # Find acked packets
         acked_packets = set()
-
-        for p in self.packets_in_network:
+        packets_in_network = self.packets_in_network.copy()
+        for p in packets_in_network:
             if p[0].seq <= self.next_packet['seq']:
                 acked_packets.add(p)
+                self.packets_in_network.remove(p)
 
-        # Remove them from the packets in the network
-        self.packets_in_network.difference_update(acked_packets)
-
-        # Manage their RTTs.
+        # Manage RTT.
         now = datetime.datetime.now()
+        ALPHA = 0.875  # NEW_RTT = ALPHA * OLD_RTT + (1 - ALPHA) * PACKET_RTT
+
         for p in acked_packets:
             if not p[2]:
                 # Packet didn't time out so it's valid for RTT calculation
@@ -349,25 +333,18 @@ class TCPSocket:
 
     def resend_packet(self):
         """
-        If there are any packets that have timed out, send the one with the lowest
-        sequence number
+        resend the time out packet
         """
-        seq, packet = self.resend_queue.get()
-
-        if len(packet) <= self.MSS:
-            self.socket.send(packet.to_bytes())
-            self.packets_in_network.add((packet, datetime.datetime.now(), True))
-            self.current_resend_packet = None
-        else:
-            self.current_resend_packet = packet
+        packet = self.resend_queue.get()
+        self.socket.send(packet.to_bytes())
+        self.packets_in_network.add((packet, datetime.datetime.now(), True))
 
     def send_new_packet(self):
         """
         If there is any data to send, send a packet containing it.
         """
-
         # Get data
-        if self.state == STATE.OPEN:
+        if self.connected:
             # Send a packet of data or ack another packet.
             packet_data = b''
             while not self.data_send_queue.empty() and len(packet_data) < self.MSS:
@@ -378,13 +355,11 @@ class TCPSocket:
         else:
             return
 
-        packet.ack = True
+        packet.ack = 1
 
         packet.checksum()
-        packet_bytes = packet.build()
 
-        # Track that we're sending this packet.
+        # add the packet in network to track
         self.packets_in_network.add((packet, datetime.datetime.now(), False))
-
-        # Send packet
-        self.socket.send(packet_bytes)
+        # Send packet in bytes
+        self.socket.send(packet.build())
