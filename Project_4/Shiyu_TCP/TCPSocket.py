@@ -39,7 +39,7 @@ class TCPSocket:
         self.dest = (socket.gethostbyname(dest[0]), dest[1])
 
         # I/O
-        self.current_recv_packet = None
+        self.received_packet = None
 
         # The slow start threshold.
         self.ss_thresh = float("inf")
@@ -63,14 +63,11 @@ class TCPSocket:
             'seq': random.randrange(0, 1 << 32)
         }
 
-        # This is the remainder of the data for a packet that we already sent part of.
-        self.current_send_packet = None
-
         # collection of packets that are currently in the network, the set has three elements,
         # packet, start time and a boolean to show it is being resent
         self.packets_in_network = set()
 
-        # This is a queue of packets which must be resent, sorted into seq number order
+        # This is a queue of resending packets, sorted into seq number order
         self.resend_queue = queue.PriorityQueue()
 
         # This is the seq number that needs to be acked to move the window.
@@ -107,7 +104,7 @@ class TCPSocket:
         if not self.connected:
             raise Exception("Socket closed")
 
-        if self.current_recv_packet is None:
+        if self.received_packet is None:
             while True:
                 if not self.connected:
                     raise Exception("Socket closed")
@@ -116,14 +113,14 @@ class TCPSocket:
                 else:
                     break
             if max_bytes is not None and len(packet) > max_bytes:
-                self.current_recv_packet = packet[max_bytes:]
+                self.received_packet = packet[max_bytes:]
                 packet = packet[:max_bytes]
         else:
-            packet = self.current_recv_packet
+            packet = self.received_packet
             if max_bytes is None or len(packet) <= max_bytes:
-                self.current_recv_packet = None
+                self.received_packet = None
             else:
-                self.current_recv_packet = packet[max_bytes:]
+                self.received_packet = packet[max_bytes:]
                 packet = packet[:max_bytes]
 
         return packet
@@ -222,58 +219,56 @@ class TCPSocket:
         packet.checksum()
 
         # Check validity
-        if not (packet.check == 0 and packet.src == self.dest and packet.dest == self.src):
-            return
+        if packet.check == 0 and packet.src == self.dest and packet.dest == self.src:
+            # Handle ACK
+            if packet.ack and packet.ack_num >= self.seq:
+                self.handle_ack(packet)
 
-        # Handle ACK
-        if packet.ack and packet.ack_num >= self.seq:
-            self.handle_ack(packet)
+            # Check if it contains data or FIN or SYN
+            if (len(packet.data) > 0) or packet.syn:
+                self.next_packet['ack'] = 1
 
-        # Check if it contains data or FIN or SYN
-        if (len(packet.data) > 0) or packet.syn:
-            self.next_packet['ack'] = 1
+            # Update the next expected seq number
+            next_seq = packet.seq + len(packet.data)
+            if len(packet.data) > 0 and packet.seq == self.next_packet['next_expected_seq']:
+                # This is the packet we need.
+                self.next_packet['next_expected_seq'] = next_seq
+                self.data_recv_queue.put(packet.data)
+                while not self.out_of_order_packets.empty():
+                    p = self.out_of_order_packets.get()
+                    if p.seq == next_seq:
+                        self.data_recv_queue.put(p.data)
+                        next_seq = p.seq + len(p.data)
+                    else:
+                        self.out_of_order_packets.put(p)
+                        break
+            elif len(packet.data) > 0 and packet.seq > self.next_packet['next_expected_seq'] \
+                    and packet.seq not in self.seen_seq_nums:
+                # Packet is out of order
+                self.out_of_order_packets.put(packet)
+                self.seen_seq_nums.add(packet.seq)
 
-        # Update the next expected seq number
-        next_seq = packet.seq + len(packet.data)
-        if len(packet.data) > 0 and packet.seq == self.next_packet['next_expected_seq']:
-            # This is the packet we need.
-            self.next_packet['next_expected_seq'] = next_seq
-            self.data_recv_queue.put(packet.data)
-            while not self.out_of_order_packets.empty():
-                p = self.out_of_order_packets.get()
-                if p.seq == next_seq:
-                    self.data_recv_queue.put(p.data)
-                    next_seq = p.seq + len(p.data)
-                else:
-                    self.out_of_order_packets.put(p)
-                    break
-        elif len(packet.data) > 0 and packet.seq > self.next_packet['next_expected_seq'] \
-                and packet.seq not in self.seen_seq_nums:
-            # Packet is out of order
-            self.out_of_order_packets.put(packet)
-            self.seen_seq_nums.add(packet.seq)
+            # Ack the packet if it has data
+            if self.next_packet['ack']:
+                p = TCPPacket(self.src, self.dest, self.seq, self.next_packet['next_expected_seq'])
+                p.ack = 1
+                p.checksum()
+                self.socket.send(p.build())
 
-        # Ack the packet if it has data
-        if self.next_packet['ack']:
-            p = TCPPacket(self.src, self.dest, self.seq, self.next_packet['next_expected_seq'])
-            p.ack = 1
-            p.checksum()
-            self.socket.send(p.build())
+            self.dest_window = packet.window
 
-        self.dest_window = packet.window
-
-        if packet.fin or packet.rst:
-            self.connected = False
+            if packet.fin or packet.rst:
+                self.connected = False
 
     def handle_ack(self, packet):
         """
         Handles the ACK clocking part of TCP.
         """
         # Increase the congestion window.
-        if self.ss_thresh > self.congestion_window:
-            self.congestion_window += 1
-        else:
+        if self.ss_thresh <= self.congestion_window:
             self.congestion_window += (1 / self.congestion_window)
+        else:
+            self.congestion_window += 1
 
         self.seq = packet.ack_num
 
@@ -293,10 +288,10 @@ class TCPSocket:
             if not p[2]:
                 # Packet didn't time out so it's valid for RTT calculation
                 packet_rtt = now - p[1]
-                if self.RTT is None:
-                    self.RTT = packet_rtt.total_seconds() * 1000
-                else:
+                if self.RTT is not None:
                     self.RTT = ALPHA * self.RTT + (1 - ALPHA) * packet_rtt.total_seconds() * 1000
+                else:
+                    self.RTT = packet_rtt.total_seconds() * 1000
 
     def timeout(self):
         """
