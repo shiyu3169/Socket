@@ -2,22 +2,22 @@ import threading
 import socket
 import queue
 
-from IPv4Packet import IPv4Packet
+from Zhongxi_ip.IPPacket import IPPacket
 
 
-class IPv4Socket:
+class IPSocket:
 
     LOCAL_HOST_IP="127.0.0.1"
 
 
-    def __init__(self, address):
+    def __init__(self, source_address):
         self.is_connected=False
 
         self.send_socket=None
         self.receive_socket=None
 
         self.destionation_ip=None
-        self.source_ip=None
+        self.source_ip=source_address
 
         self.complete_packets_queue=queue.Queue()
         self.partial_packets_buffer={}
@@ -35,7 +35,7 @@ class IPv4Socket:
         try:
             self.receive_socket=socket.socket(socket.AF_INET,socket.SOCK_RAW,socket.IPPROTO_TCP)
             self.receive_socket.setblocking(False)
-            self.send_socket=socket.socket(socket.SOCK_RAW,proto=socket.IPPROTO_RAW)
+            self.send_socket=socket.socket(type=socket.SOCK_RAW,proto=socket.IPPROTO_RAW)
             self.send_socket.connect(destination)
         except:
             raise Exception("sockets cannot be correctly initiated for connection")
@@ -73,12 +73,12 @@ class IPv4Socket:
             if not self.is_connected:
                 break;
             try:
-                response=self.receive_socket.recvfrom(IPv4Packet.PACKET_MAX_SIZE)
-            except:
-                print("Error happens when reading from socket")
-            new_packet=IPv4Packet.generate_packet_from_received_bytes(response[0])
+                response=self.receive_socket.recvfrom(IPPacket.PACKET_MAX_SIZE)
+            except Exception:
+                continue
+            new_packet=IPPacket.generate_packet_from_received_bytes(response[0])
 
-            if new_packet.destination_ip not in [IPv4Socket.LOCAL_HOST_IP, self.source_ip] or \
+            if new_packet.destination_ip not in [IPSocket.LOCAL_HOST_IP, self.source_ip] or \
                 new_packet.source_ip!=self.destionation_ip:
                 print("Drop a packet destined for the wrong address")
                 continue
@@ -125,11 +125,31 @@ class IPv4Socket:
 
 
     #ToDo: change the name to recv_data
-    def recv(self,max_size=IPv4Packet.PACKET_MAX_SIZE):
+    def recv(self,max_size=IPPacket.PACKET_MAX_SIZE):
+        packet=None
+        if self.current_packet_unfinished is None:
+            try:
+                packet=self.complete_packets_queue.get(False)
+            except Exception:
+                return packet
+        else:
+            packet=self.current_packet_unfinished
+
+        if len(packet)<=max_size:
+            result=packet
+            self.current_packet_unfinished=None
+        else:
+            result=packet[:max_size]
+            self.current_packet_unfinished=packet[max_size:]
+
+        return result
+
+
 
 
 
     #ToDo: change the name to send_data
     def send(self,data):
         #ToDo: all the outgoing packet has checksum field as 0, no good
-
+        new_packet=IPPacket(self.source_ip,self.destionation_ip,data)
+        self.send_socket.send(new_packet.convert_packet_to_bytes())

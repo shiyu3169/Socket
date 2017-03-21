@@ -11,7 +11,7 @@ def cyclic_generator():
 ID_GENERATOR=cyclic_generator()
 
 
-class IPv4Packet:
+class IPPacket:
 
     PACKET_MIN_SIZE=20
     PACKET_MAX_SIZE=65535
@@ -33,7 +33,7 @@ class IPv4Packet:
 
         #zeroth word (except total length)
         self.version=4
-        self.ihl=IPv4Packet.HEADER_MIN_SIZE
+        self.ihl=IPPacket.HEADER_MIN_SIZE
         self.dscp=0
         self.ecn=0
 
@@ -47,7 +47,7 @@ class IPv4Packet:
         #second word
         self.ttl=128
         self.protocol=6 #ToDo: is 6 correct?
-        self.header_checksum=0
+        self.header_checksum=0  #ToDo: header checksum always zero?
 
         #third word
         self.source_ip=source
@@ -70,15 +70,14 @@ class IPv4Packet:
 
     @classmethod
     def generate_packet_from_received_bytes(cls,bytes):
-        if len(bytes)<IPv4Packet.PACKET_MIN_SIZE:
+        if len(bytes)<IPPacket.PACKET_MIN_SIZE:
             print("Not enough bytes to build a packet") #ToDo: should the message just be printed or raised as an Exception
             return None
-        elif len(bytes)>IPv4Packet.PACKET_MAX_SIZE:
+        elif len(bytes)>IPPacket.PACKET_MAX_SIZE:
             print("Too many bytes for one packet") #ToDo: should the message just be printed or raised as an Exception
             return None
 
-        first_five_words_of_header=struct.unpack(IPv4Packet.HEADER_PATTERN,
-                                                 bytes[:4*IPv4Packet.PACKET_MIN_SIZE])
+        first_five_words_of_header=struct.unpack(IPPacket.HEADER_PATTERN, bytes[:IPPacket.PACKET_MIN_SIZE])
         source_ip_of_bytes=first_five_words_of_header[8]
         destination_ip_of_bytes=first_five_words_of_header[9]
         temporary_data=b""
@@ -91,10 +90,10 @@ class IPv4Packet:
         packet.ihl=first_five_words_of_header[0]& 0x0f
 
 
-        if packet.ihl>IPv4Packet.HEADER_MAX_SIZE:
+        if packet.ihl>IPPacket.HEADER_MAX_SIZE:
             print("Header size specified in the field is larger than what is allowed")
             return None
-        elif packet.ihl<IPv4Packet.HEADER_MIN_SIZE:
+        elif packet.ihl<IPPacket.HEADER_MIN_SIZE:
             print("Header size specified in the field is smaller than what is allowed")
             return None
 
@@ -124,8 +123,8 @@ class IPv4Packet:
 
         packet.options=None
 
-        if packet.ihl>IPv4Packet.HEADER_MIN_SIZE:
-            packet.options=bytes[IPv4Packet.HEADER_MIN_SIZE*4:packet.ihl*4]
+        if packet.ihl>IPPacket.HEADER_MIN_SIZE:
+            packet.options= bytes[IPPacket.HEADER_MIN_SIZE * 4:packet.ihl * 4]
 
         packet.data=bytes[packet.ihl*4:]
 
@@ -139,7 +138,7 @@ class IPv4Packet:
         flags = (self.flag_reserved << 2) | (self.flag_dont_fragment << 1) | (self.flag_more_fragments)
         flags_fragmentOffset = (((flags & 0x07) << 13) | (self.fragment_offset & 0x1fff)) & 0xffff
 
-        header = struct.pack(IPv4Packet.HEADER_PATTERN,
+        header = struct.pack(IPPacket.HEADER_PATTERN,
                              version_ihl,
                              dscp_ecn,
                              self.total_length & 0xffff,
@@ -166,7 +165,7 @@ class IPv4Packet:
         header=self.get_header_in_bytes()
         #ToDo: change how checksum is done
         sum=0
-        count=len(bytes)
+        count=len(header)
         i=0
         while count>1:
             b=header[i:i+2]
