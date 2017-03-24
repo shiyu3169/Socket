@@ -1,0 +1,143 @@
+#!/usr/bin/python
+
+import re
+import argparse
+
+from MyCurl import MyCurl
+
+
+class HTTP_STATUS:
+    """match Http Status and its code"""
+    OK='200'
+    MOVE_PERMANENTLY='301'
+    FOUND='302'
+    FORBIDDEN='403'
+    NOT_FOUND='404'
+    SERVER_ERROR='500'
+
+
+
+
+class Crawler:
+    """the main crawler page used to parse response message
+    in order to navigate around frontier to find 5 flags"""
+
+    # the login page
+    LOG_IN_PAGE="/accounts/login/?next=/fakebook/"
+
+    def __init__(self):
+        """init the variables"""
+        self.frontier = set()
+        self.flags = set()
+        self.dest = ("cs5700sp17.ccs.neu.edu",80)
+        self.curl = MyCurl(self.dest)
+
+    def filterLinks(self, links):
+        """filter out the duplicate links or visited links"""
+        filteredLinks = set()
+        for link in links:
+            if link not in filteredLinks and not self.curl.is_visited_or_Not(link):
+                filteredLinks.add(str(link))
+        return filteredLinks
+
+    def findLinks(self, body):
+        """find all hyperlinks starting with 'fakebook' in this page body"""
+        # According to the TA, the hyperlinks will always start with /fakebook/
+        # and it should also consider unsafe characters, such as <, >, #, %, {, }
+        pattern = re.compile(r'<a href=\"(/fakebook/?[\S/]*)\">')
+        links = pattern.findall(body)
+        # Find a new url(have not been visited or found), then add it to urls
+        return self.filterLinks(links)
+
+
+    def findFlags(self, body):
+        """find all flags in current page body"""
+        pattern = re.compile(r"<h2 class='secret_flag' style=\"color:red\">FLAG: (\w*)</h2>")
+        flags = pattern.findall(body)
+        for flag in flags:
+            flag = str(flag)
+            print(flag)
+        return flags
+
+
+    def login(self, username, password):
+        """login into fakebook and handle cookie"""
+        form = "username=" + username + "&password=" + password
+        try:
+            self.curl.get(Crawler.LOG_IN_PAGE)
+        except:
+            raise Exception("Cannot access log in page")
+        try:
+            csrf_token = self.curl.get_cookie('csrftoken')
+        except:
+            raise Exception("No csrf_token in the header of response from login page")
+        form += ("&csrfmiddlewaretoken=" + csrf_token)
+        headers = {}
+        try:
+            loginResponse = self.curl.post(Crawler.LOG_IN_PAGE, headers, str(form))
+        except:
+            raise Exception("Cannot make post to log in page")
+        if loginResponse.status_code != HTTP_STATUS.FOUND:
+            raise Exception("fail to login")
+        self.response_processor(Crawler.LOG_IN_PAGE, loginResponse)
+
+    def response_processor(self, URL, response):
+        """handle different status from server response"""
+        #status code=200
+        if response.status_code == HTTP_STATUS.OK:
+            self.body_processor(response)
+
+        #status code=403 or 404
+        #if response.status_code == HTTP_STATUS.FORBIDDEN or response.status_code == HTTP_STATUS.NOT_FOUND:
+
+        #status code=301 or 302
+        if response.status_code == HTTP_STATUS.FOUND or response.status_code == HTTP_STATUS.MOVE_PERMANENTLY:
+            try:
+                forward_link=response.getHeader("location")
+            except:
+                raise Exception("Server return 301 or 302, but no link to relocate to")
+            if forward_link not in self.frontier and not self.curl.is_visited_or_Not(forward_link):
+                self.frontier.add(forward_link)
+
+        #status code=500
+        if response.status_code == HTTP_STATUS.SERVER_ERROR:
+            if URL not in self.frontier and not self.curl.is_visited_or_Not(URL):
+                self.frontier.add(URL)
+
+
+    def body_processor(self,response):
+        """navigate around links to find flags"""
+        response_body=response.body
+        all_links=self.findLinks(response_body)
+        all_flags=self.findFlags(response_body)
+        for link in all_links:
+            self.frontier.add(link)
+        for flag in all_flags:
+            self.flags.add(flag)
+
+
+    def crawl(self,username,password):
+        """main function to start login and look for flags"""
+        self.login(username,password)
+        while len(self.frontier)>0 and len(self.flags)<5 :
+            url=self.frontier.pop()
+            try:
+                response=self.curl.get(url)
+            except:
+                raise Exception("This url: " + url + " is not working")
+            self.response_processor(url,response)
+        if not len(self.flags)==5:
+            raise Exception("Unknown server Error")
+
+
+def main(args):
+    mycrawler=Crawler()
+    mycrawler.crawl(args.username,args.password)
+
+
+if __name__ == "__main__":
+    parser=argparse.ArgumentParser(description='Process Input')
+    parser.add_argument("username",help="username of fakebook")
+    parser.add_argument("password",help="password of fakebook")
+    args=parser.parse_args()
+    main(args)
