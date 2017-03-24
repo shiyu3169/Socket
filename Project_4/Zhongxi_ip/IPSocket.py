@@ -148,9 +148,7 @@ class IPSocket:
 
 
 
-    #ToDo: change the name to send_data
     def send(self,data):
-        #ToDo: all the outgoing packet has checksum field as 0, no good
         new_packet=IPPacket(self.source_ip,self.destionation_ip,data)
         new_packet.set_checksum_field()
         self.send_socket.send(new_packet.convert_packet_to_bytes())
