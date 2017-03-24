@@ -54,7 +54,7 @@ class IPSocket:
             raise Exception("Listening thread cannot be initiated correctly")
 
 
-
+    '''
     #ToDo: It looks this function is never used in DASHEN's code
     def shutdown(self):
         self.is_connected=False
@@ -64,7 +64,7 @@ class IPSocket:
             self.send_socket.shutdown()
             self.send_socket.close()
         except:
-            raise Exception("sockets cannot be correctly closed")
+            raise Exception("sockets cannot be correctly closed")'''
 
 
 
@@ -152,4 +152,5 @@ class IPSocket:
     def send(self,data):
         #ToDo: all the outgoing packet has checksum field as 0, no good
         new_packet=IPPacket(self.source_ip,self.destionation_ip,data)
+        new_packet.set_checksum_field()
         self.send_socket.send(new_packet.convert_packet_to_bytes())

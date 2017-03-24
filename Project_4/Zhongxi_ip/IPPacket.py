@@ -159,6 +159,9 @@ class IPPacket:
         bytes=self.get_header_in_bytes()+self.data
         return bytes
 
+    def set_checksum_field(self):
+        self.header_checksum=self.checksum()
+
 
 
     def checksum(self):
