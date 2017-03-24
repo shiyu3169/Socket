@@ -72,17 +72,19 @@ if __name__=="__main__":
 
      Destination1=("david.choffnes.com",80)
      test1=MyCurl(Destination1)
-     response=test1.get("http://david.choffnes.com/classes/cs4700sp17/2MB.log")
+     response=test1.get("http://david.choffnes.com/classes/cs4700sp17/project4.php")
      file=open("test.html", 'wb')
-     file.write(response.body.encode())
+     file.write(response.body)
 
 
      #test2
      Destination2=("cs5700sp17.ccs.neu.edu",80)
      test2=MyCurl(Destination2)
-     test2.get("/accounts/login/?next=/fakebook/")
-#
-#
+     response2=test2.get("/accounts/login/?next=/fakebook/")
+     file2=open("test2.html", 'wb')
+     file2.write(response2.body)
+
+
 #     csrf_token=test2.cookieJar.get_cookie('csrftoken')
 #     form="username=001156814&password=DVO8KW2F&csrfmiddlewaretoken="+csrf_token
 #     headers= {

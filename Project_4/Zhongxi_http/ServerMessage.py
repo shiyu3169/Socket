@@ -87,10 +87,10 @@ class ServerMessage:
 
     def readBody(self, file, fileLength):
         """read the body part of the message"""
-        self.body=""
+        self.body=b""
         while 1:
             try:
-                data = file.read(fileLength).decode("utf-8")
+                data = file.read(fileLength)
             except:
                 raise Exception("Error reading a line in the body")
             # check if the socket is empty
@@ -106,7 +106,7 @@ class ServerMessage:
 
     def readChunkedBody(self, file):
         """read the special chunked body of the message"""
-        self.body= ""
+        self.body= b""
         while 1:
             try:
                 hexsize = file.readline().decode("utf-8")
@@ -118,10 +118,10 @@ class ServerMessage:
             size = int(hexsize, 16)
             if size == 0:
                 break
-            data = ""
+            data = b""
             while 1:
                 try:
-                    line = file.read(size).decode("utf-8")
+                    line = file.read(size)
                 except:
                     raise Exception("Error reading a line in chunked body")
                 data += line
