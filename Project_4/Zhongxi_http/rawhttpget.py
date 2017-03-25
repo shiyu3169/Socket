@@ -4,7 +4,7 @@
 import socket
 from urllib.parse import urlparse
 import argparse
-from Zhongxi_http.MyCurl import MyCurl
+from MyCurl import MyCurl
 
 HTTP_SOCKET=80
 
@@ -15,9 +15,9 @@ def main(args):
         conn=MyCurl(Destination)
         response=conn.get(path)
     except:
-        Exception("Cannot connect")
-    if response.status_code!=200:
-        Exception("Connection fails")
+        raise Exception("Cannot connect")
+    if response.status_code!='200':
+        raise Exception("Connection fails")
     else:
         file=open(filename,'wb')
         file.write(response.body)
@@ -33,11 +33,11 @@ def parse_url(url):
     parsed_url=urlparse(url)
 
     if parsed_url.netloc=='':
-        Exception("No domain name")
+        raise Exception("No domain name")
     try:
         socket.gethostbyname(parsed_url.netloc)
     except Exception:
-        Exception("Cannot find IP address for this url")
+        raise Exception("Cannot find IP address for this url")
 
     domain=parsed_url.netloc
 
