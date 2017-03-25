@@ -1,3 +1,6 @@
+#! /usr/bin/python3
+
+
 import struct
 import socket
 from random import randint
