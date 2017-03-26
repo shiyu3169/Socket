@@ -50,7 +50,7 @@ class IPPacket:
         #second word
         self.ttl=128
         self.protocol=6 #ToDo: is 6 correct?
-        self.header_checksum=0  #ToDo: header checksum always zero?
+        self.header_checksum=0
 
         #third word
         self.source_ip=source
@@ -169,7 +169,7 @@ class IPPacket:
 
     def checksum(self):
         header=self.get_header_in_bytes()
-        #ToDo: change how checksum is done
+        # ToDo: change how checksum is done
         sum=0
         count=len(header)
         i=0

@@ -127,7 +127,6 @@ class IPSocket:
     '''
 
 
-    #ToDo: change the name to recv_data
     def recv(self,max_size=IPPacket.PACKET_MAX_SIZE):
         packet=None
         if self.current_packet_unfinished is None:
