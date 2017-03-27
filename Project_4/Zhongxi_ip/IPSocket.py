@@ -153,5 +153,5 @@ class IPSocket:
     def send(self,data):
         new_packet=IPPacket(self.source_ip,self.destionation_ip,data)
         new_packet.set_checksum_field()
-        print(new_packet.checksum())
+        #print(new_packet.checksum())
         self.send_socket.send(new_packet.convert_packet_to_bytes())
