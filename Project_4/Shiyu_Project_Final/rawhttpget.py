@@ -18,7 +18,7 @@ def main(args):
     except:
         raise Exception("Cannot connect")
     if response.status_code != '200':
-        raise Exception("Connection fails")
+        raise Exception("Connection fails with status_code: "+response.status_code)
     else:
         print("Saving response to %s" % (filename))
         file = open(filename,'wb')

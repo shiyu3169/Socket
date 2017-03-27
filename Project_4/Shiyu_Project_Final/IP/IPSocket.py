@@ -108,10 +108,9 @@ class IPSocket:
     def recv(self,max_size=IPPacket.PACKET_MAX_SIZE):
         packet=None
         if self.current_packet_unfinished is None:
-            try:
-                packet=self.complete_packets_queue.get(False)
-            except Exception:
-                return packet
+            if not self.complete_packets_queue.empty():
+               packet= self.complete_packets_queue.get(False)
+            return packet
         else:
             packet=self.current_packet_unfinished
 
