@@ -1,3 +1,4 @@
+import sys
 from HTTP.CookieJar import CookieJar
 
 
@@ -79,9 +80,9 @@ class ServerMessage:
         :param size: The size of the body in bytes
         :param socket_reader: The file to read the body from.
         """
-        print("Reading Message")
         self.body = b""
         num = 0
+        sys.stdout.write("\r{:d}%".format(int(float(num) / fileLength * 100)))
         while True:
             data = file.recv(fileLength)
             if data is None:
@@ -89,8 +90,10 @@ class ServerMessage:
             data = data
             num += len(data)
             self.body += data
+            sys.stdout.write("\r{:d}%".format(int(float(num) / fileLength * 100)))
             if num >= fileLength:
                 break
+        sys.stdout.write("\n")
 
     def read_chunked_body(self, file):
         """
@@ -98,7 +101,7 @@ class ServerMessage:
         message is "chunked"
         :param file: The file to read this from.
         """
-        print("Reading Chunked Message")
+        print("Reading Chunked Message, Can't track progress")
         while 1:
             try:
                 hexsize = readline(file).decode("utf-8")
@@ -135,6 +138,7 @@ class ServerMessage:
             return self.headers[key]
         except KeyError:
             raise Exception("Missing Header")
+
 
 def readline(file):
     """
