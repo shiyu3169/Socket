@@ -22,6 +22,7 @@ class IPPacket:
     HEADER_MAX_SIZE=15
     HEADER_PATTERN="!BBHHHBBH4s4s"
 
+
     def __init__(self,source,destination,data):
 
 
@@ -49,7 +50,7 @@ class IPPacket:
         #second word
         self.ttl=128
         self.protocol=6 #ToDo: is 6 correct?
-        self.header_checksum=0  #ToDo: header checksum always zero?
+        self.header_checksum=0
 
         #third word
         self.source_ip=source
@@ -168,18 +169,15 @@ class IPPacket:
 
     def checksum(self):
         header=self.get_header_in_bytes()
-        #ToDo: change how checksum is done
         sum=0
         count=len(header)
-        i=0
-        while count>1:
+        for i in range(0,count,2):
             b=header[i:i+2]
             val=int.from_bytes(b,'big')
             sum+=val
-            count-=2
-            i+=2
-        if count>0:
-            sum+=header[i]<<8
+        if count%2==1:
+            sum+=header[count-1]<<8
+
         while (sum>>16)>0:
             sum=(sum&0xffff) +(sum>>16)
 

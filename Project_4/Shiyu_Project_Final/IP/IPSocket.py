@@ -7,9 +7,11 @@ import queue
 
 from IP.IPPacket import IPPacket
 
+
 class IPSocket:
 
     LOCAL_HOST_IP="127.0.0.1"
+
 
     def __init__(self, source_address):
         self.is_connected=False
@@ -55,17 +57,6 @@ class IPSocket:
             raise Exception("Listening thread cannot be initiated correctly")
 
 
-    '''
-    #ToDo: It looks this function is never used in DASHEN's code
-    def shutdown(self):
-        self.is_connected=False
-        try:
-            self.receive_socket.shutdown()
-            self.receive_socket.close()
-            self.send_socket.shutdown()
-            self.send_socket.close()
-        except:
-            raise Exception("sockets cannot be correctly closed")'''
 
 
 
@@ -113,26 +104,13 @@ class IPSocket:
         self.complete_packets_queue.put(data)
 
 
-    '''
-    def assemble_packet(self,id):
-        data=b''
-        queue_for_packet=self.partial_packets_buffer[id]
-        while not queue_for_packet.empty():
-            current_partial_packet=queue_for_packet.get()
-            data+=current_partial_packet.data
-        del self.partial_packets_buffer[id]
-        self.complete_packets_queue.put(data)
-    '''
 
-
-    #ToDo: change the name to recv_data
     def recv(self,max_size=IPPacket.PACKET_MAX_SIZE):
         packet=None
         if self.current_packet_unfinished is None:
-            try:
-                packet=self.complete_packets_queue.get(False)
-            except Exception:
-                return packet
+            if not self.complete_packets_queue.empty():
+               packet= self.complete_packets_queue.get(False)
+            return packet
         else:
             packet=self.current_packet_unfinished
 
@@ -152,4 +130,5 @@ class IPSocket:
     def send(self,data):
         new_packet=IPPacket(self.source_ip,self.destionation_ip,data)
         new_packet.set_checksum_field()
+        #print(new_packet.checksum())
         self.send_socket.send(new_packet.convert_packet_to_bytes())
