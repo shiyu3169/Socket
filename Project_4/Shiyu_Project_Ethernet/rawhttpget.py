@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import argparse
 from HTTP.MyCurl import MyCurl
 
+
 HTTP_SOCKET=80
 
 
@@ -17,7 +18,7 @@ def main(args):
     except:
         raise Exception("Cannot connect")
     if response.status_code != '200':
-        raise Exception("Connection fails with status_code: "+response.status_code)
+        raise Exception("Connection fails")
     else:
         print("Saving response to %s" % (filename))
         file = open(filename,'wb')
