@@ -57,17 +57,6 @@ class IPSocket:
             raise Exception("Listening thread cannot be initiated correctly")
 
 
-    '''
-    #ToDo: It looks this function is never used in DASHEN's code
-    def shutdown(self):
-        self.is_connected=False
-        try:
-            self.receive_socket.shutdown()
-            self.receive_socket.close()
-            self.send_socket.shutdown()
-            self.send_socket.close()
-        except:
-            raise Exception("sockets cannot be correctly closed")'''
 
 
 
