@@ -115,17 +115,6 @@ class IPSocket:
         self.complete_packets_queue.put(data)
 
 
-    '''
-    def assemble_packet(self,id):
-        data=b''
-        queue_for_packet=self.partial_packets_buffer[id]
-        while not queue_for_packet.empty():
-            current_partial_packet=queue_for_packet.get()
-            data+=current_partial_packet.data
-        del self.partial_packets_buffer[id]
-        self.complete_packets_queue.put(data)
-    '''
-
 
     def recv(self,max_size=IPPacket.PACKET_MAX_SIZE):
         packet=None
