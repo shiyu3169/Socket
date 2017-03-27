@@ -8,7 +8,7 @@ class ServerMessage:
     """this is a model that parsing received message from HTTP server"""
 
     def __init__(self, mySocket):
-        """initialize the varaibles"""
+        """initialize the variables"""
         self.version = ""
         self.status_code = None
         self.status = ""
@@ -17,7 +17,7 @@ class ServerMessage:
         self.body = ""
 
         # Start reading received message and update variables
-        socketFile = mySocket.makefile("rb")
+        socketFile = SocketReader(mySocket)
         self.getStatus(socketFile)
         self.readHeader(socketFile)
         if "transfer-encoding" in self.headers and self.getHeader("transfer-encoding") == "chunked":
@@ -87,10 +87,12 @@ class ServerMessage:
 
     def readBody(self, file, fileLength):
         """read the body part of the message"""
-        self.body=""
+        self.body=b""
+        read = 0
+        progress_bar(read, fileLength)
         while 1:
             try:
-                data = file.read(fileLength).decode("utf-8")
+                data = file.read(fileLength)
             except:
                 raise Exception("Error reading a line in the body")
             # check if the socket is empty
@@ -98,7 +100,9 @@ class ServerMessage:
                 raise Exception("socket is empty")
             self.body += data
             fileLength -= len(data)
-            if fileLength <= 0:
+            progress_bar(read, fileLength)
+            sys.stdout.write("\n")
+            if num_read >= size:
                 break
 
 
@@ -106,7 +110,8 @@ class ServerMessage:
 
     def readChunkedBody(self, file):
         """read the special chunked body of the message"""
-        self.body= ""
+        print("Reading Chunked message, No file length")
+        self.body= b""
         while 1:
             try:
                 hexsize = file.readline().decode("utf-8")
