@@ -1,4 +1,3 @@
-import sys
 from HTTP.CookieJar import CookieJar
 
 
@@ -15,14 +14,13 @@ class ServerMessage:
         self.body = b""
 
         # Start reading received message and update variables
-        file = my_socket
-        self.get_status(file)
-        self.read_headers(file)
+        self.get_status(my_socket)
+        self.read_headers(my_socket)
         if "transfer-encoding" in self.headers and self.get_header("transfer-encoding") == "chunked":
-            self.read_chunked_body(file)
+            self.read_chunked_body(my_socket)
         else:
             bodyLength = int(self.get_header("content-length"))
-            self.read_body(file, bodyLength)
+            self.read_body(my_socket, bodyLength)
 
     def get_status(self, file):
         """read the first line to get status info"""
@@ -81,9 +79,9 @@ class ServerMessage:
         :param size: The size of the body in bytes
         :param socket_reader: The file to read the body from.
         """
+        print("Reading Message")
         self.body = b""
         num = 0
-        progress_bar(num, fileLength)
         while True:
             data = file.recv(fileLength)
             if data is None:
@@ -91,10 +89,8 @@ class ServerMessage:
             data = data
             num += len(data)
             self.body += data
-            progress_bar(num, fileLength)
             if num >= fileLength:
                 break
-        sys.stdout.write("\n")
 
     def read_chunked_body(self, file):
         """
@@ -102,8 +98,7 @@ class ServerMessage:
         message is "chunked"
         :param file: The file to read this from.
         """
-        print("Reading Chunked message, No file length")
-        body = b""
+        print("Reading Chunked Message")
         while 1:
             try:
                 hexsize = readline(file).decode("utf-8")
@@ -141,18 +136,6 @@ class ServerMessage:
         except KeyError:
             raise Exception("Missing Header")
 
-
-def progress_bar(done, max):
-    percent = float(done) / max
-    width = 80
-    done_width = int(width * percent) - 1
-    rest_width = width - done_width - 1
-    sys.stdout.write("\033[2K")
-    sys.stdout.write("\r[{:s}{:s}] {:d}% {:d}/{:d}".format("*" * done_width,
-                                                           " " * rest_width,
-                                                           int(percent * 100), done, max,
-                                                           done_width=done_width,
-                                                           rest_width=rest_width))
 def readline(file):
     """
     read the data in this line
