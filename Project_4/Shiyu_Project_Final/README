@@ -1,0 +1,17 @@
+Raw Sockets
+Team Members: Zhongxi Wang, Shiyu Wang
+
+The goal of this project is to implement the low-level operations of the Internet protocol stack, including IP and TCP headers.
+The task is to write a program called rawhttpget that takes a URL on the command line and downloads the associated file. 
+
+Approach
+Since the TCP, IP and HTTP are all seperate layers. We started by working on TCP and IP layers seperately.
+In the IP part, we have two classes, one is IPPakcet, the other is IPSocket. IPPacket handles constructing IPv4 header. IPSocket handles sending and receiving packets. The main part in IPSocket is receiving packets, here we use two queues to store complete and incomplete packets. When a packet is received, we first check if it is a fragment or not. If it is, it is then added to the incomplete queue and be checked if it can form a complete packet with the previous fragments. Otherwise, it is added to the complete queue. In order to expedite the program, we use a separate thread to parse packets in the background. The main thread caters to the TCP layer to handle connection, sending packets and returning the first packet from the complete queue. 
+Similarly, TCP part also has two classes, TCPPacket and TCPSocket. The TCPPacket is used to build TCP headers. And TCPSocket connect to the HTTP part to send and receive data. In TCPSocket, we started connection by three-way handshack and seperated thread like in IP layer to parse packets. While connecting, we also check the time out of packets sending to resend packets and adjust windows and threshold to perform slow start. 
+After finishing these two layers, We made few changes in ServerMessage.py. Then we construct the whole project like HTTP - TCP - IP. 
+
+Work Separation
+After discussing about the blueprint of this project, we seperate our code based on layers. 
+1. Zhongxi works on IP part and rawhttpget part.
+2. Shiyu is responsible for TCP part and midification of HTTP part.
+
