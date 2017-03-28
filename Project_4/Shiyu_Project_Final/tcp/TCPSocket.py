@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 import random
 import datetime
 import time
@@ -17,7 +19,7 @@ class TCPSocket:
         self.seq = 0
         self.received_packet = None
         self.ssthresh = float("inf")
-        self.c_window = 1
+        self.c_window = 1.0
         self.adv_window = float('inf')
         self.RTT = None
         self.MSS = 536
@@ -182,15 +184,21 @@ class TCPSocket:
                     break
 
             if packet.fin or packet.rst:
-                 self.connected = False
+                self.connected = False
 
             # Check if it contains data or syn
             if (len(packet.data) > 0) or packet.syn:
                 self.next_packet['ack'] = 1
 
-            # Handle ACK
+            # Deal ACK
             if packet.ack and packet.ack_num >= self.seq:
                 self.ack_process(packet)
+
+                # update the congestion window.
+                if self.ssthresh <= self.c_window:
+                    self.c_window += (1 / self.c_window)
+                else:
+                    self.c_window += 1
 
             # Get the next seq number
             next_seq = packet.seq + len(packet.data)
@@ -229,56 +237,47 @@ class TCPSocket:
         acked_p = set()
         packets_in_sending = self.sending_packets.copy()
         for packet in packets_in_sending:
-            if packet[0].seq <= self.next_packet['seq']:
-                acked_p.add(packet)
+            if self.next_packet['seq'] > packet[0].seq:
                 self.sending_packets.remove(packet)
+                acked_p.add(packet)
 
         # Manage RTT.
         now = datetime.datetime.now()
-        ALPHA = 0.875  # NEW_RTT = ALPHA * OLD_RTT + (1 - ALPHA) * PACKET_RTT
+        alpha = 0.875
 
         for packet in acked_p:
             if not packet[2]:
                 # Packet didn't time out so it's valid for RTT calculation
-                packet_rtt = now - packet[1]
+                rtt = now - packet[1]
                 if self.RTT is not None:
-                    self.RTT = ALPHA * self.RTT + (1 - ALPHA) * packet_rtt.total_seconds() * 1000
+                    self.RTT = alpha * self.RTT + (1 - alpha) * rtt.total_seconds() * 1000
                 else:
-                    self.RTT = packet_rtt.total_seconds() * 1000
-
-        # update the congestion window.
-        if self.ssthresh <= self.c_window:
-            self.c_window += (1 / self.c_window)
-        else:
-            self.c_window += 1
+                    self.RTT = rtt.total_seconds() * 1000
 
     def sendall(self, data):
         """Send all the data"""
         self.send_queue.put(data)
 
-    def recv(self, max=None):
+    def recv(self, maximum=None):
         """Get data from the socket"""
-        packet = b''
-        if not self.connected:
-            raise Exception("Socket closed")
-
-        if self.received_packet is None:
-            while True:
-                if not self.recv_queue.empty():
+        if self.connected:
+            packet = b''
+            if self.received_packet is None:
+                while not self.recv_queue.empty():
                     packet += self.recv_queue.get(block=False)
-                else:
-                    break
-            if max is not None and len(packet) > max:
-                self.received_packet = packet[max:]
-                packet = packet[:max]
-        else:
-            packet = self.received_packet
-            if max is None or len(packet) <= max:
-                self.received_packet = None
+                if maximum is not None and len(packet) > maximum:
+                    self.received_packet = packet[maximum:]
+                    packet = packet[:maximum]
             else:
-                self.received_packet = packet[max:]
-                packet = packet[:max]
-        return packet
+                packet = self.received_packet
+                if maximum is None or len(packet) <= maximum:
+                    self.received_packet = None
+                else:
+                    self.received_packet = packet[maximum:]
+                    packet = packet[:maximum]
+            return packet
+        else:
+            raise Exception("Socket closed")
 
     def close(self):
         """Close the socket"""

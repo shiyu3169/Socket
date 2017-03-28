@@ -1,3 +1,5 @@
+#! /usr/bin/python3
+
 import sys
 from HTTP.CookieJar import CookieJar
 
@@ -6,13 +8,16 @@ class ServerMessage:
     """this is a model that parsing received message from HTTP server"""
 
     def __init__(self, my_socket):
-        """initialize the variables"""
+        """
+        Initialize this message and read the data from the network.
+        This should probably be refactored somehow.
+        :param sock: The socket to read this message from.
+        """
         self.version = ""
         self.status_code = None
-        self.status = ""
-        self.cookieJar = CookieJar()
         self.headers = {}
         self.body = b""
+        self.cookieJar = CookieJar()
 
         # Start reading received message and update variables
         self.get_status(my_socket)
@@ -26,7 +31,7 @@ class ServerMessage:
     def get_status(self, file):
         """read the first line to get status info"""
         try:
-            statusLine = readline(file).decode("utf-8").strip()
+            statusLine = readline(file).decode()
         except:
             raise Exception("Error in reading line")
             # check if the file is empty, raise exception
@@ -74,12 +79,7 @@ class ServerMessage:
             self.headers[str(key.lower())] = str(value.strip())
 
     def read_body(self, file, fileLength):
-        """
-        Read the body of the message. This should be done if the message
-        has a body and the transfer-encoding header is not "chunked".
-        :param size: The size of the body in bytes
-        :param socket_reader: The file to read the body from.
-        """
+        """Read the body of the message"""
         self.body = b""
         num = 0
         sys.stdout.write("\r{:d}%".format(int(float(num) / fileLength * 100)))
@@ -96,25 +96,19 @@ class ServerMessage:
         sys.stdout.write("\n")
 
     def read_chunked_body(self, file):
-        """
-        Read a chunked body.  This should be called when the transfer-encoding of the
-        message is "chunked"
-        :param file: The file to read this from.
-        """
-        print("Reading Chunked Message, Can't track progress")
+        """Read a chunked body."""
+        print("Reading Chunked message")
         while 1:
             try:
                 hexsize = readline(file).decode("utf-8")
             except:
                 raise Exception("Error reading a line in chunked body")
-            if hexsize is None:
-                raise Exception("Empty Socket")
             hexsize = hexsize.strip()
             size = int(hexsize, 16)
             if size == 0:
                 break
             data = b""
-            while 1:
+            while True:
                 try:
                     line = file.recv(size)
                 except:
@@ -123,17 +117,12 @@ class ServerMessage:
                 size -= len(line)
                 if size <= 0:
                     break
-            file.recv(2) # read line \r\n
-        self.body += data
+            self.body += data
+            file.recv(2)  # read line \r\n
         self.read_headers(file)
 
     def get_header(self, key):
-        """
-        Get a single header from this message
-        :param key: The key for the header. Should be lower-case.
-        :return: The value of this header
-        :except: MissingHeaderException if the header does not exist.
-        """
+        """Get a header from this message"""
         try:
             return self.headers[key]
         except KeyError:
