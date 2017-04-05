@@ -1,4 +1,5 @@
 import struct
+import dnsanswer
 
 class DNS_Packet:
     def __init__(self):
@@ -24,7 +25,7 @@ class DNS_Packet:
         self.nscount=0 #16bits
         self.arcount=0 #16bits
         self.questions=[]
-        self.ancount=[]
+        self.answers=[]
 
 
     def pack(self):
@@ -47,13 +48,13 @@ class DNS_Packet:
 
 
     @classmethod
-    def response_packet(cls,data):
+    def unpack(cls,data):
         packet=cls()
         header=struct.unpack("!HHHHHH",data[:12])
         packet.id=header[0]
         #ToDo: line55 probably is not needed
         packet.flag=header[1]
-        #what about the data after the first 12 bytes
+        #ToDo:what about the data after the first 12 byte, definitely need to
         return packet
 
 
