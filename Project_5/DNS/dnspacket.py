@@ -27,8 +27,8 @@ class dnspacket:
         self.ancount=0 #16bits
         self.nscount=0 #16bits
         self.arcount=0 #16bits
-        self.questions=[]
-        self.answers=[]
+        self.question=None
+        self.answer=None
 
 
     def pack(self):
@@ -38,16 +38,13 @@ class dnspacket:
         Since no question will be asked by this server, the question field of the packet is ignored
         '''
 
-        #ToDo: probably only one answer is needed
-        answers=b''
-        for answer in self.answers:
-            answers+=answer.to_binary()
+        answer_in_byte=self.answer.to_binary()
 
-        self.ancount=len(answers)
+        self.ancount=len(answer_in_byte)
 
         header=struct.pack("!HHHHHH",self.id,self.flag,self.qdcount,self.ancount,self.nscount,self.arcount)
 
-        return header+answers
+        return header+answer_in_byte
 
 
     @classmethod
@@ -58,9 +55,9 @@ class dnspacket:
         return packet
 
 
-    def add_answer(self,URL,data):
+    def set_answer(self, URL, data):
         answer=dnsanswer(URL,data)
-        self.answers.append(answer)
+        self.answer=answer
 
 
 

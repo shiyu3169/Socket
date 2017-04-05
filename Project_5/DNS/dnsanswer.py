@@ -30,15 +30,15 @@ class dnsanswer:
         '''
         #ToDo: I do not think anything needs to be done on name
 
-        converted = b''
+        binary_domain = b''
         for label in self.name.split("."):
-            converted += chr(len(label)).encode()
-            converted += label.encode()
-        converted += b'\x00'
+            binary_domain += chr(len(label)).encode()
+            binary_domain += label.encode()
+        binary_domain += b'\x00'
 
         ip=socket.inet_aton(self.data)
         self.rdlength=len(ip)
-        return  converted+struct.pack("!HHIH",self.type,self.cla,self.ttl,self.rdlength)+ ip
+        return  binary_domain+struct.pack("!HHIH",self.type,self.cla,self.ttl,self.rdlength)+ ip
 
 
 

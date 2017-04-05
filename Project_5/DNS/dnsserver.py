@@ -38,7 +38,7 @@ class dnsserver:
             response.id=request.id
             best_replica_ip=self.find_best_replica(address)
             #ToDo: add_answer first parameter should not be the domain name in question?
-            response.add_answer(self.domain,best_replica_ip)
+            response.set_answer(self.domain, best_replica_ip)
             self.socket.sendto(response.pack(),address)
 
 
