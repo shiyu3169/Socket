@@ -1,7 +1,10 @@
-import struct
-import dnsanswer
+#! /usr/bin/python3
 
-class DNS_Packet:
+
+import struct
+from dnsanswer import dnsanswer
+
+class dnspacket:
     def __init__(self):
         '''
         Initiate the class
@@ -52,9 +55,6 @@ class DNS_Packet:
         packet=cls()
         header=struct.unpack("!HHHHHH",data[:12])
         packet.id=header[0]
-        #ToDo: line55 probably is not needed
-        packet.flag=header[1]
-        #ToDo:what about the data after the first 12 byte, definitely need to
         return packet
 
 

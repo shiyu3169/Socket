@@ -1,5 +1,8 @@
+#! /usr/bin/python3
+
+
 import socket
-import dnspacket
+from dnspacket import dnspacket
 import argparse
 
 MAX_PACKET_SIZE=65535
@@ -16,7 +19,11 @@ class dnsserver:
         self.socket=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.port=port
         #ToDo:what is this line doing?
-        self.socket.bind(("",port))
+        try:
+            #ToDo: another way to bind with empty ip address?
+            self.socket.bind(("",self.port))
+        except:
+            raise Exception("The port is occupied")
 
     def listen_and_response(self):
         '''
@@ -25,10 +32,10 @@ class dnsserver:
                 the EC2 server
         '''
         while True:
-            data, address=self.recvfrom(MAX_PACKET_SIZE)
-            request=dnspacket.unpakc(data)
+            data, address=self.socket.recvfrom(MAX_PACKET_SIZE)
+            request=dnspacket.unpack(data)
             response=dnspacket()
-            response.id=request.ip
+            response.id=request.id
             best_replica_ip=self.find_best_replica(address)
             #ToDo: add_answer first parameter should not be the domain name in question?
             response.add_answer(self.domain,best_replica_ip)
@@ -40,7 +47,7 @@ class dnsserver:
         :param address: the ip address of the client which makes the dns request
         :return: the ip address of the replica for this client
         '''
-        return "127.0.0.1"
+        return socket.gethostbyname("ec2-54-94-214-108.sa-east-1.compute.amazonaws.com")
 
 
 def main(args):
@@ -48,15 +55,13 @@ def main(args):
     try:
         server.listen_and_response()
     except:
-        raise Exception("DNS server cannot function")
-
-
+        raise Exception("DNS server is terminated")
 
 
 
 if __name__=="__main__":
-    parser=argparse.ArgumentParser(description='Process input',choices=range(40000,65535))
-    parser.add_argument("-p","--portNumber",type=int)
+    parser=argparse.ArgumentParser(description='Process input')
+    parser.add_argument("-p","--portNumber",type=int,choices=range(40000,65535))
     parser.add_argument("-n","--name",type=str)
     args=parser.parse_args()
     main(args)

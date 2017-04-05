@@ -1,3 +1,6 @@
+#! /usr/bin/python3
+
+
 import socket
 import struct
 
@@ -16,8 +19,8 @@ class dnsanswer:
         self.type=type
         self.cla=cla
         self.ttl=ttl
-        self.data=socket.inet_aton(data)
-        self.rdlength=len(self.data) #the length of the data
+        self.data=data
+        self.rdlength=0 #the length of the data
 
 
 
@@ -27,7 +30,15 @@ class dnsanswer:
         '''
         #ToDo: I do not think anything needs to be done on name
 
-        return  self.name+struct.pack("!HHIH",self.type,self.cla,self.ttl,self.rdlength)+self.data
+        converted = b''
+        for label in self.name.split("."):
+            converted += chr(len(label)).encode()
+            converted += label.encode()
+        converted += b'\x00'
+
+        ip=socket.inet_aton(self.data)
+        self.rdlength=len(ip)
+        return  converted+struct.pack("!HHIH",self.type,self.cla,self.ttl,self.rdlength)+ ip
 
 
 
