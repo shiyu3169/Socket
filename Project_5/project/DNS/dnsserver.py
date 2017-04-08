@@ -1,4 +1,4 @@
-#! /usr/bin/python3
+#!/usr/bin/python
 
 
 import socket
@@ -47,7 +47,7 @@ class dnsserver:
         :param address: the ip address of the client which makes the dns request
         :return: the ip address of the replica for this client
         '''
-        return socket.gethostbyname("ec2-54-94-214-108.sa-east-1.compute.amazonaws.com")
+        return socket.gethostbyname("52.90.80.45")
 
 
 def main(args):
