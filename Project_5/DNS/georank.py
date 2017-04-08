@@ -33,8 +33,8 @@ def get_distances(client_ip):
     result={}
     for ip in MAP:
         result[ip]=cal_distance(current_location,MAP[ip])
-    print result  #to sort a map: sorted(map.items(),key=lambda x:x[1])
-
+    #print result  #to sort a map: sorted(map.items(),key=lambda x:x[1])
+    return result
 
 
 def cal_distance(pointA,pointB):
@@ -43,7 +43,8 @@ def cal_distance(pointA,pointB):
 
 
 def main():
-    get_distances("178.137.38.15")
+    result_map=get_distances("178.137.38.15")
+    print sorted(result_map.items(),key=lambda x:x[1])[0][0]
 
 if __name__=='__main__':
     main()
