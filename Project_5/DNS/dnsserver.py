@@ -4,9 +4,25 @@
 import socket
 from dnspacket import dnspacket
 import argparse
+import random
+import Queue as queue
 from georank import *
+import threading
+
 
 MAX_PACKET_SIZE=65535
+SERVERS=[
+    '52.90.80.45',
+    '54.183.23.203',
+    '54.70.111.57',
+    '52.215.87.82',
+    '52.28.249.79',
+    '54.169.10.54',
+    '52.62.198.57',
+    '52.192.64.163',
+    '54.233.152.60'
+]
+
 
 class dnsserver:
 
@@ -20,6 +36,9 @@ class dnsserver:
         self.socket=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.port=port
         self.ip_to_target_ip_distance={}
+        self.ip_to_query=queue.Queue()
+        self.thread=threading.Thread(target=self.loop)
+        self.thread.setDaemon(True)
         try:
             #ToDo: another way to bind with empty ip address?
             self.socket.bind(("",self.port))
@@ -59,22 +78,40 @@ class dnsserver:
         :param address: the ip address of the client which makes the dns request
         :return: the ip address of the replica for this client
         '''
+        '''
         result_map=get_distances(address[0])
         return sorted(result_map.items(), key=lambda x: x[1])[0][0]
-        #return "138.125.6.7"
+        '''
+        client_ip=address[0]
+        if client_ip in self.ip_to_target_ip_distance:
+            print("client already queried")
+            result_ip= (self.ip_to_target_ip_distance[client_ip])[0]
+            #ToDo:Remove next line, it is only for testing
+            self.ip_to_query.put(client_ip)
+            return result_ip
+        else:
+            print("new client ip")
+            self.ip_to_query.put(client_ip)
+            return random.choice(SERVERS)
 
 
     def loop(self):
         while True:
-
-
-
+            if not self.ip_to_query.empty():
+                current_ip=self.ip_to_query.get()
+                result=get_distances(current_ip)
+                smallest_ip_distance=sorted(result.items(), key=lambda x: x[1])[0]
+                if not current_ip in self.ip_to_target_ip_distance:
+                    self.ip_to_target_ip_distance[current_ip]=smallest_ip_distance
+                elif self.ip_to_target_ip_distance[current_ip][1]>smallest_ip_distance[1]:
+                    self.ip_to_target_ip_distance[current_ip]=smallest_ip_distance
 
 
 
 def main(args):
     server=dnsserver(args.name,args.portNumber)
     try:
+        server.thread.start()
         server.listen_and_response()
     except:
         raise Exception("DNS server is terminated")
