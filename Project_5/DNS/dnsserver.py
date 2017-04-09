@@ -84,13 +84,11 @@ class dnsserver:
         '''
         client_ip=address[0]
         if client_ip in self.ip_to_target_ip_distance:
-            print("client already queried")
             result_ip= (self.ip_to_target_ip_distance[client_ip])[0]
             #ToDo:Remove next line, it is only for testing
             self.ip_to_query.put(client_ip)
             return result_ip
         else:
-            print("new client ip")
             self.ip_to_query.put(client_ip)
             return random.choice(SERVERS)
 
@@ -98,6 +96,8 @@ class dnsserver:
     def loop(self):
         while True:
             if not self.ip_to_query.empty():
+                print("still running")
+
                 current_ip=self.ip_to_query.get()
                 result=get_distances(current_ip)
                 smallest_ip_distance=sorted(result.items(), key=lambda x: x[1])[0]

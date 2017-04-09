@@ -15,6 +15,19 @@ MAP={
 }
 
 
+FALSE_DISTANCE={
+        '52.90.80.45': 10000000,
+        '54.183.23.203': 10000000,
+        '54.70.111.57': 10000000,
+        '52.215.87.82':10000000,
+        '52.28.249.79':10000000,
+        '54.169.10.54':10000000,
+        '52.62.198.57':10000000,
+        '52.192.64.163':10000000,
+        '54.233.152.60': 100000000
+}
+
+
 #The KEY for IPInfoDB
 KEY="6333a667b572041337caf64377744b660cd47a49eb668eff5858f826231b7e70"
 
@@ -25,12 +38,16 @@ api="http://api.ipinfodb.com/v3/ip-city/?key="+KEY+"&ip="
 
 
 def get_distances(client_ip):
-    #IPInfoDB_response=urllib2.urlopen(api+client_ip)
-    IPInfoDB_response = "OK;;74.125.45.100;US;United States;Oklahoma;Tulsa;74101;36.154;-95.9928;-05:00"
-    #response_details=IPInfoDB_response.read().split(";")
-    response_details = IPInfoDB_response.split(";")
-    latitude=float(response_details[8])
-    longitude=float(response_details[9])
+    try:
+        IPInfoDB_response=urllib2.urlopen(api+client_ip)
+        #print IPInfoDB_response.read()
+        response_details = IPInfoDB_response.read().split(";")
+        latitude = float(response_details[8])
+        longitude = float(response_details[9])
+    except:
+        print ("Something is wrong")
+        return FALSE_DISTANCE
+
     current_location=(latitude,longitude)
     result={}
     for ip in MAP:
