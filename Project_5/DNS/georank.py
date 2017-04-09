@@ -25,8 +25,10 @@ api="http://api.ipinfodb.com/v3/ip-city/?key="+KEY+"&ip="
 
 
 def get_distances(client_ip):
-    IPInfoDB_response=urllib2.urlopen(api+client_ip)
-    response_details=IPInfoDB_response.read().split(";")
+    #IPInfoDB_response=urllib2.urlopen(api+client_ip)
+    IPInfoDB_response = "OK;;74.125.45.100;US;United States;Oklahoma;Tulsa;74101;36.154;-95.9928;-05:00"
+    #response_details=IPInfoDB_response.read().split(";")
+    response_details = IPInfoDB_response.split(";")
     latitude=float(response_details[8])
     longitude=float(response_details[9])
     current_location=(latitude,longitude)

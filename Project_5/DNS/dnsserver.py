@@ -19,7 +19,7 @@ class dnsserver:
         self.domain=domain
         self.socket=socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
         self.port=port
-        #ToDo:what is this line doing?
+        self.ip_to_target_ip_distance={}
         try:
             #ToDo: another way to bind with empty ip address?
             self.socket.bind(("",self.port))
@@ -33,14 +33,25 @@ class dnsserver:
                 the EC2 server
         '''
         while True:
-            data, address=self.socket.recvfrom(MAX_PACKET_SIZE)
-            request=dnspacket.unpack(data)
+            try:
+                data, address=self.socket.recvfrom(MAX_PACKET_SIZE)
+            except:
+                raise Exception("Cannot get packets")
+            try:
+                request=dnspacket.unpack(data)
+            except:
+                raise Exception("Unable to unpack data")
             response=dnspacket()
             response.id=request.id
-            best_replica_ip=self.find_best_replica(address)
-            #ToDo: add_answer first parameter should not be the domain name in question?
+            try:
+                best_replica_ip=self.find_best_replica(address)
+            except:
+                raise Exception("unable to find best replica")
             response.set_answer(self.domain, best_replica_ip)
-            self.socket.sendto(response.pack(),address)
+            try:
+                self.socket.sendto(response.pack(),address)
+            except:
+                raise Exception("Unable to send")
 
 
     def find_best_replica(self,address):
@@ -50,6 +61,14 @@ class dnsserver:
         '''
         result_map=get_distances(address[0])
         return sorted(result_map.items(), key=lambda x: x[1])[0][0]
+        #return "138.125.6.7"
+
+
+    def loop(self):
+        while True:
+
+
+
 
 
 
