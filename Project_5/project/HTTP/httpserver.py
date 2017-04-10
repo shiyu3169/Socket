@@ -47,14 +47,20 @@ class Cache:
             # Add enough space for given key and value
             size = self.size + len(value) + len(key)
             while size > max_size:
-                c.execute("DELETE FROM cache ORDER BY date LIMIT(1)")
+                try:
+                    c.execute("DELETE FROM cache ORDER BY date LIMIT(1)")
+                except:
+                    pass
         # Insert data into cache
-        c.execute("SELECT date, path FROM cache WHERE path = ?", (key,))
-        if c.fetchone():
-            c.execute("UPDATE cache SET date=datetime('now','localtime')  WHERE path=?", (key,))
-        else:
-            c.execute("INSERT INTO cache VALUES (datetime('now','localtime'), ?, ?)", (key, value))
-            self.space.commit()
+        try:
+            c.execute("SELECT date, path FROM cache WHERE path = ?", (key,))
+            if c.fetchone():
+                c.execute("UPDATE cache SET date=datetime('now','localtime')  WHERE path=?", (key,))
+            else:
+                c.execute("INSERT INTO cache VALUES (datetime('now','localtime'), ?, ?)", (key, value))
+                self.space.commit()
+        except:
+            pass
 
         self.size = os.stat('cache.db').st_size
         # self.space[key] = value
@@ -78,17 +84,25 @@ class Server:
 
     def do_GET(self):
         c = self.cache.space.cursor()
-        c.execute("SELECT date, path FROM cache WHERE path = ?", (self.path,))
-        # Function to handle get request
-        if c.fetchone():
-            # If the replicated server has data
-            c.execute("UPDATE cache SET date=datetime('now','localtime')  WHERE path=?", (self.path,))
-            c.execute("SELECT * FROM cache WHERE path=?", (self.path,))
-            row = c.fetchone()
-            data = row[2]
-            self.reply(data)
-        else:
-            # Get data from origin server
+        try:
+            c.execute("SELECT date, path FROM cache WHERE path = ?", (self.path,))
+            # Function to handle get request
+            if c.fetchone():
+                # If the replicated server has data
+                c.execute("UPDATE cache SET date=datetime('now','localtime')  WHERE path=?", (self.path,))
+                c.execute("SELECT * FROM cache WHERE path=?", (self.path,))
+                row = c.fetchone()
+                data = row[2]
+                self.reply(data)
+            else:
+                # Get data from origin server
+                try:
+                    response_code, headers, data = self.get_from_origin()
+                except urllib2.HTTPError as e:
+                    response_code, headers, data = e.getcode(), [], b""
+                self.store(response_code, data)
+        except:
+            print "An error in cache, getting data from origin"
             try:
                 response_code, headers, data = self.get_from_origin()
             except urllib2.HTTPError as e:
