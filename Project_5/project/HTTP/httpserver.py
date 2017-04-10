@@ -1,16 +1,12 @@
-#!/usr/bin/python
-
 import errno
 import os
 import signal
 import socket
-import datetime
 import argparse
 import urllib2
-import shelve
 import httplib
-from datetime import datetime
-import logging
+import _sqlite3
+
 
 def grim_reaper(signum, frame):
     # Handle zombies from child process
@@ -31,37 +27,39 @@ class Cache:
     # The class to measure and handle cache in EC2
     def __init__(self):
         # Open -- file may get suffix added by low-level
-        self.space = shelve.open("cache")
-        # Record of last time use for each path
-        self.last_time_use = {}
-        # Size of the cache
-        self.size = 0
+        self.space = _sqlite3.connect('cache.db')
+        self.space.text_factory = str
+        c = self.space.cursor()
+        # Create table
+        c.execute('''CREATE TABLE IF NOT EXISTS cache
+                     (date datetime, path TEXT, content TEXT)''')
 
-        # Update size based on cache data
-        self.size = os.stat('cache').st_size
+        # Size of the cache
+        self.size = os.stat('cache.db').st_size
 
     def store(self, key, value):
+        c = self.space.cursor()
         # Store origin data to replicated server
         size = self.size + len(value) + len(key)
         # Max size of the replicated server
         max_size = 2 ** 20 * 9
         if size > max_size:
             # Add enough space for given key and value
-            ordered_times = sorted(self.last_time_use, key=self.last_time_use.get)
             size = self.size + len(value) + len(key)
-            while size > max_size and len(ordered_times) > 0:
-                removed_key = ordered_times.pop()
-                removed_value = self.space[removed_key]
-                self.size -= (len(removed_key) + len(removed_value))
-                print "Cache is full"
-                print removed_key + " is deleted"
-                del self.space[removed_key]
-                del self.last_time_use[removed_key]
-        self.last_time_use[key] = datetime.now()
-        self.size += (len(value) + len(key))
-        self.space[key] = value
+            while size > max_size:
+                c.execute("DELETE FROM cache ORDER BY date LIMIT(1)")
+        # Insert data into cache
+        c.execute("SELECT date, path FROM cache WHERE path = ?", (key,))
+        if c.fetchone():
+            c.execute("UPDATE cache SET date=datetime('now','localtime')  WHERE path=?", (key,))
+        else:
+            c.execute("INSERT INTO cache VALUES (datetime('now','localtime'), ?, ?)", (key, value))
+            self.space.commit()
+
+        self.size = os.stat('cache.db').st_size
+        # self.space[key] = value
         # empty the cache and synchronize the persistent dictionary on disk
-        self.space.sync()
+        # self.space.sync()
 
 
 class Server:
@@ -76,13 +74,18 @@ class Server:
         self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Return headers set by Web framework/Web application
         self.headers = []
+        self.path = ""
 
     def do_GET(self):
+        c = self.cache.space.cursor()
+        c.execute("SELECT date, path FROM cache WHERE path = ?", (self.path,))
         # Function to handle get request
-        if self.cache.space.has_key(self.path):
+        if c.fetchone():
             # If the replicated server has data
-            self.cache.last_time_use[self.path] = datetime.now()
-            data = self.cache.space[self.path]
+            c.execute("UPDATE cache SET date=datetime('now','localtime')  WHERE path=?", (self.path,))
+            c.execute("SELECT * FROM cache WHERE path=?", (self.path,))
+            row = c.fetchone()
+            data = row[2]
             self.reply(data)
         else:
             # Get data from origin server

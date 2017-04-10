@@ -4,6 +4,7 @@
 import socket
 from dnspacket import dnspacket
 import argparse
+from georank import *
 
 MAX_PACKET_SIZE=65535
 
@@ -47,7 +48,9 @@ class dnsserver:
         :param address: the ip address of the client which makes the dns request
         :return: the ip address of the replica for this client
         '''
-        return socket.gethostbyname("52.90.80.45")
+        result_map=get_distances(address[0])
+        return sorted(result_map.items(), key=lambda x: x[1])[0][0]
+
 
 
 def main(args):

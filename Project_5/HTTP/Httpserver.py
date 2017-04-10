@@ -30,7 +30,7 @@ class Cache:
         # Store origin data to replicated server
         size = self.size + len(value) + len(key)
         # Max size of the replicated server
-        max_size = 2 ** 20 * 10
+        max_size = 2 ** 20 * 9
         print "size: " + str(size)
         if size > max_size:
             # Add enough space for given key and value
