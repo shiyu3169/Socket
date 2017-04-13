@@ -33,17 +33,17 @@ KEY="6333a667b572041337caf64377744b660cd47a49eb668eff5858f826231b7e70"
 
 #The url of IPInfoDB's api
 
-api="http://api.ipinfodb.com/v3/ip-city/?key="+KEY+"&ip="
-
+#api="http://api.ipinfodb.com/v3/ip-city/?key="+KEY+"&ip="
+API='http://ipinfo.io/'
+API_LOC='/loc'
 
 
 def get_distances(client_ip):
     try:
-        IPInfoDB_response=urllib2.urlopen(api+client_ip)
-        #print IPInfoDB_response.read()
-        response_details = IPInfoDB_response.read().split(";")
-        latitude = float(response_details[8])
-        longitude = float(response_details[9])
+        IPInfoDB_response=urllib2.urlopen(API+client_ip+API_LOC)
+        response_details = ((IPInfoDB_response.read())[:-1]).split(',')
+        latitude = float(response_details[0])
+        longitude = float(response_details[1])
     except:
         print ("Something is wrong")
         return FALSE_DISTANCE
