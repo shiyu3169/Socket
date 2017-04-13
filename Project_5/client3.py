@@ -25,7 +25,7 @@ def main(max_clients, max_conns):
                 sock.sendall(REQUEST)
                 socks.append(sock)'''
                 #subprocess.call("dig @127.0.0.1 -p 50000 ", shell=True)
-                os.system("curl -X GET https://ipapi.co/135.178.2.3/latitude/")
+                os.system(" dig @cs5700cdnproject.ccs.neu.edu -p 40015")
                 print(connection_num)
                 os._exit(0)
 

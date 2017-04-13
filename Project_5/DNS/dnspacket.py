@@ -51,8 +51,21 @@ class dnspacket:
     def unpack(cls,data):
         packet=cls()
         header=struct.unpack("!HHHHHH",data[:12])
+        question=data[12:]
+        [qtype,qclass]=struct.unpack('>HH',question[-4:])
+        s = question[:-4]
+        pointer = 0
+        temp = []
+        while True:
+            count = ord(s[pointer])
+            if count == 0:
+                break
+            pointer += 1
+            temp.append(s[pointer:pointer + count])
+            pointer += count
+        qname = '.'.join(temp)
         packet.id=header[0]
-        return packet
+        return [qname,packet]
 
 
     def set_answer(self, URL, data):

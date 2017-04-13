@@ -48,8 +48,10 @@ class dnsserver:
     def listen_and_response(self):
         '''
             An infinite loop to always listen for incoming dns queries,
-                what ever the query is, return the ip address of one of
-                the EC2 server
+                return the ip address of one of the EC2 server.
+
+            The query must be the same as self.domain, otherwise the dns
+            server would not reply.
         '''
         while True:
             try:
@@ -57,7 +59,9 @@ class dnsserver:
             except:
                 raise Exception("Cannot get packets")
             try:
-                request=dnspacket.unpack(data)
+                [qname,request]=dnspacket.unpack(data)
+                if qname!=self.domain:
+                   continue
             except:
                 raise Exception("Unable to unpack data")
             response=dnspacket()

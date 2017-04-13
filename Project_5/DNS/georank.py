@@ -15,6 +15,7 @@ MAP={
 }
 
 
+#FALSE_DISTANCE is in case that geolocation is not working correctly
 FALSE_DISTANCE={
         '52.90.80.45': 10000000,
         '54.183.23.203': 10000000,
@@ -28,12 +29,7 @@ FALSE_DISTANCE={
 }
 
 
-#The KEY for IPInfoDB
-KEY="6333a667b572041337caf64377744b660cd47a49eb668eff5858f826231b7e70"
-
 #The url of IPInfoDB's api
-
-#api="http://api.ipinfodb.com/v3/ip-city/?key="+KEY+"&ip="
 API='http://ipinfo.io/'
 API_LOC='/loc'
 
@@ -45,7 +41,7 @@ def get_distances(client_ip):
         latitude = float(response_details[0])
         longitude = float(response_details[1])
     except:
-        print ("Something is wrong")
+        print ("Something is wrong with Geolocation query")
         return FALSE_DISTANCE
 
     current_location=(latitude,longitude)
