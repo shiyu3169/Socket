@@ -5,7 +5,7 @@ import socket
 import struct
 
 class dnsanswer:
-    def __init__(self,name,data,type=0x0001,cla=0x0001,ttl=60):
+    def __init__(self,name,data,type=0x0001,cla=0x0001,ttl=0xff):
         '''
         :param self:
         :param name: the domain name being queried

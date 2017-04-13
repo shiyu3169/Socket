@@ -53,6 +53,7 @@ class dnsserver:
             The query must be the same as self.domain, otherwise the dns
             server would not reply.
         '''
+        query_times=0
         while True:
             try:
                 data, address=self.socket.recvfrom(MAX_PACKET_SIZE)
@@ -66,6 +67,9 @@ class dnsserver:
                 raise Exception("Unable to unpack data")
             response=dnspacket()
             response.id=request.id
+
+            query_times+=1
+            print(query_times)
             try:
                 best_replica_ip=self.find_best_replica(address)
             except:
@@ -82,15 +86,10 @@ class dnsserver:
         :param address: the ip address of the client which makes the dns request
         :return: the ip address of the replica for this client
         '''
-        '''
-        result_map=get_distances(address[0])
-        return sorted(result_map.items(), key=lambda x: x[1])[0][0]
-        '''
+
         client_ip=address[0]
         if client_ip in self.ip_to_target_ip_distance:
             result_ip= (self.ip_to_target_ip_distance[client_ip])[0]
-            #ToDo:Remove next line, it is only for testing
-            self.ip_to_query.put(client_ip)
             return result_ip
         else:
             self.ip_to_query.put(client_ip)
@@ -98,10 +97,14 @@ class dnsserver:
 
 
     def loop(self):
+        '''
+            The loop being run in the separated thread, taking one ip from the ip_to_query queue,
+            find its geolocation and distances to all the EC2, put this IP and the closet EC2's ip
+             and distance into the dictionary ip_to_target_ip_distance
+        '''
+
         while True:
             if not self.ip_to_query.empty():
-                print("still running")
-
                 current_ip=self.ip_to_query.get()
                 result=get_distances(current_ip)
                 smallest_ip_distance=sorted(result.items(), key=lambda x: x[1])[0]

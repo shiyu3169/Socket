@@ -35,6 +35,10 @@ API_LOC='/loc'
 
 
 def get_distances(client_ip):
+    '''
+    :param client_ip: client's ip address
+    :return: its distances to all the EC2
+    '''
     try:
         IPInfoDB_response=urllib2.urlopen(API+client_ip+API_LOC)
         response_details = ((IPInfoDB_response.read())[:-1]).split(',')
@@ -53,13 +57,22 @@ def get_distances(client_ip):
 
 
 def cal_distance(pointA,pointB):
+    '''
+
+    :param pointA: latitude and longitude of point A
+    :param pointB: latitude and longitude of point B
+    :return: distance between these two points
+    '''
     return math.sqrt(reduce(lambda x, y: x + y,
                                 map(lambda x, y: math.pow((x - y), 2), pointA, pointB), 0))
 
 
+
+'''
 def main():
     result_map=get_distances("178.137.38.15")
     print sorted(result_map.items(),key=lambda x:x[1])[0][0]
 
 if __name__=='__main__':
     main()
+'''

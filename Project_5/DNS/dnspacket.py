@@ -38,33 +38,42 @@ class dnspacket:
         Since no question will be asked by this server, the question field of the packet is ignored
         '''
 
+        question_in_byte=b''
+
         answer_in_byte=self.answer.to_binary()
 
-        self.ancount=len(answer_in_byte)
+        self.ancount=1 #there is only one answer
 
         header=struct.pack("!HHHHHH",self.id,self.flag,self.qdcount,self.ancount,self.nscount,self.arcount)
 
-        return header+answer_in_byte
+        return header+question_in_byte+answer_in_byte
 
 
     @classmethod
     def unpack(cls,data):
+        '''
+        :param data: the binary data of dns query from socket
+        :return: the url the query is for and the reconstructed pakcet
+        '''
+
         packet=cls()
         header=struct.unpack("!HHHHHH",data[:12])
+        packet.id=header[0]
+
+        #This part is to extract the url the query is asking about
         question=data[12:]
         [qtype,qclass]=struct.unpack('>HH',question[-4:])
-        s = question[:-4]
+        qname_binary = question[:-4]
         pointer = 0
         temp = []
         while True:
-            count = ord(s[pointer])
+            count = ord(qname_binary[pointer])
             if count == 0:
                 break
             pointer += 1
-            temp.append(s[pointer:pointer + count])
+            temp.append(qname_binary[pointer:pointer + count])
             pointer += count
         qname = '.'.join(temp)
-        packet.id=header[0]
         return [qname,packet]
 
 
