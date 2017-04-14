@@ -5,8 +5,8 @@ import socket
 import argparse
 import urllib2
 import httplib
-import _sqlite3
-
+import zlib
+import urllib
 
 def grim_reaper(signum, frame):
     # Handle zombies from child process
@@ -23,46 +23,48 @@ def grim_reaper(signum, frame):
             return
 
 
-class Cache:
-    # The class to measure and handle cache in EC2
-    def __init__(self):
-        # Open -- file may get suffix added by low-level
-        self.space = _sqlite3.connect('cache.db')
-        self.space.text_factory = str
-
 class Server:
+
     # The server class to handle http request and response
     def __init__(self):
         self.host = ""
         self.port = args.port
         self.origin = args.origin
-        self.cache = Cache()
         self.server_address = (self.host, self.port)
         self.request_queue_size = 1024
         self.listen_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         # Return headers set by Web framework/Web application
         self.headers = []
         self.path = ""
+        self.cache = []
+
+        f = open('pathname', 'rb')
+        line = f.readline()
+        while line != "":
+            self.cache.append(line.strip())
+            line = f.readline()
+        f.close()
 
     def do_GET(self):
-        c = self.cache.space.cursor()
+        # Function to handle get request
         try:
-            c.execute("SELECT path FROM cache2 WHERE path=?", (self.path,))
-            # Function to handle get request
-            if c.fetchone():
-                c.execute("SELECT * FROM cache2 WHERE path=?", (self.path,))
-                row = c.fetchone()
-                data = row[1]
-                self.reply(data)
+            name = urllib.unquote(self.path.split('/')[-1])
+            if name == "":
+                name = "Main_Page"
+            if 'load.php?' in name:
+                name = "load4"
+            if name in self.cache:
+                str_object1 = open('./zip/' + name + '.Z', 'rb').read()
+                str_object2 = zlib.decompress(str_object1)
+                self.reply(str_object2)
             else:
                 # Get data from origin server
                 try:
                     response_code, headers, data = self.get_from_origin()
                 except urllib2.HTTPError as e:
                     response_code, headers, data = e.getcode(), [], b""
-
         except:
-            print "An error in cache, getting data from origin"
+            # Get data from origin server
             try:
                 response_code, headers, data = self.get_from_origin()
             except urllib2.HTTPError as e:
@@ -109,7 +111,6 @@ class Server:
             self.reply(content)
             return reply.status, [], content
         else:
-            print "Error Page"
             content = reply.read()
             self.reply(content)
             return reply.status, [], content
