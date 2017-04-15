@@ -28,3 +28,10 @@ http_servers[8]='ec2-54-233-152-60.sa-east-1.compute.amazonaws.com'
 ssh -i $keyfile $username@$dns_server "rm -rf dns; mkdir -p dns"
 scp -r -i $keyfile DNS/* $username@$dns_server:dns
 
+
+#Upload to HTTP Server
+for server in "${http_servers[@]}"
+do
+    ssh -i $keyfile $username@$server "rm -rf http; mkdir -p http"
+    scp -r -i $keyfile HTTP/* $username@$server:http
+done;
