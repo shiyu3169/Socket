@@ -25,5 +25,12 @@ http_servers[7]='ec2-52-192-64-163.ap-northeast-1.compute.amazonaws.com'
 http_servers[8]='ec2-54-233-152-60.sa-east-1.compute.amazonaws.com'
 
 
+
 #Stop DNS server
 ssh -i $keyfile $username@$dns_server "killall -u $username dnsserver.py"
+
+# Stop HTTP Server
+for server in "${http_servers[@]}"
+do
+    ssh -i $keyfile $username@$server "killall -u $username httpserver.py"
+done
