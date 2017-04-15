@@ -1,0 +1,27 @@
+#!/bin/bash
+
+if [ $# -ne 10 ];then
+    echo "Usage: ./deployCDN -p <port> -o <origin> -n <name> -u <username> -i <keyfile>"
+    exit
+fi
+
+dns_server="cs5700cdnproject.ccs.neu.edu"
+port=$2
+origin=$4
+domain=$6
+username=$8
+keyfile=${10}
+
+http_servers[0]='ec2-52-90-80-45.compute-1.amazonaws.com'
+http_servers[1]='ec2-54-183-23-203.us-west-1.compute.amazonaws.com'
+http_servers[2]='ec2-54-70-111-57.us-west-2.compute.amazonaws.com'
+http_servers[3]='ec2-52-215-87-82.eu-west-1.compute.amazonaws.com'
+http_servers[4]='ec2-52-28-249-79.eu-central-1.compute.amazonaws.com'
+http_servers[5]='ec2-54-169-10-54.ap-southeast-1.compute.amazonaws.com'
+http_servers[6]='ec2-52-62-198-57.ap-southeast-2.compute.amazonaws.com'
+http_servers[7]='ec2-52-192-64-163.ap-northeast-1.compute.amazonaws.com'
+http_servers[8]='ec2-54-233-152-60.sa-east-1.compute.amazonaws.com'
+
+#Upload to DNS Server
+ssh -i $keyfile $username@dns_server "rm -rf dns; mkdir -p dns"
+scp -r -i $keyfile DNS/* $username@$dns_server:dns
