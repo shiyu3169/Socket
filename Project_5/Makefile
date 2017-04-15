@@ -1,0 +1,8 @@
+http_servers[1]='ec2-54-183-23-203.us-west-1.compute.amazonaws.com'
+http_servers[2]='ec2-54-70-111-57.us-west-2.compute.amazonaws.com'
+http_servers[3]='ec2-52-215-87-82.eu-west-1.compute.amazonaws.com'
+http_servers[4]='ec2-52-28-249-79.eu-central-1.compute.amazonaws.com'
+http_servers[5]='ec2-54-169-10-54.ap-southeast-1.compute.amazonaws.com'
+http_servers[6]='ec2-52-62-198-57.ap-southeast-2.compute.amazonaws.com'
+http_servers[7]='ec2-52-192-64-163.ap-northeast-1.compute.amazonaws.com'
+http_servers[8]='ec2-54-233-152-60.sa-east-1.compute.amazonaws.com'
