@@ -28,3 +28,9 @@ http_servers[8]='ec2-54-233-152-60.sa-east-1.compute.amazonaws.com'
 
 #Run the DNS Server
 ssh -i $keyfile $username@$dns_server "cd dns; nohup ./dnsserver -p $port -n $domain > dns.out 2> dns.log </dev/null &"
+
+#Run the HTTP Server
+for server in "${http_servers[@]}"
+do
+    ssh -i $keyfile $username@$server "cd http; nohup ./httpserver -p $port -o $origin > http.out 2> http.log < /dev/null &"
+done
