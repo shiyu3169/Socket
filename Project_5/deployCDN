@@ -61,7 +61,7 @@ def deploy_http(server):
 
 
 if __name__=="__main__":
-    parser = argparse.ArgumentParser(description="__deployCDN -p <port> -o <origin> -n <name> -u <username> -i <keyfile>");
+    parser = argparse.ArgumentParser(description="deployCDN -p <port> -o <origin> -n <name> -u <username> -i <keyfile>");
     parser.add_argument("-p", "--port", type=int)
     parser.add_argument("-o","--origin",type=str)
     parser.add_argument("-n","--name",type=str)
