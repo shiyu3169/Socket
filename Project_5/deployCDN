@@ -12,7 +12,6 @@ domain=$6
 username=$8
 keyfile=${10}
 
-echo
 
 http_servers[0]='ec2-52-90-80-45.compute-1.amazonaws.com'
 http_servers[1]='ec2-54-183-23-203.us-west-1.compute.amazonaws.com'
