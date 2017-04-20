@@ -1,4 +1,4 @@
 default:
-	sudo chmod 755 deployCDN
-	sudo chmod 755 runCDN
-	sudo chmod 755 stopCDN
+	chmod 755 deployCDN
+	chmod 755 runCDN
+	chmod 755 stopCDN
