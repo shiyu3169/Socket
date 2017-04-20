@@ -23,12 +23,15 @@ http_servers.append('ec2-54-233-152-60.sa-east-1.compute.amazonaws.com')
 
 
 def main(args):
-    #Clear CDN
+    #Clear DNS
     cdn_clear_command="ssh -i "+args.keyfile+" "+args.username+"@"+dns_server+ "  rm -rf DNS"
     subprocess.call(cdn_clear_command,shell=True)
-    #Deploy CDN
+    #Deploy DNS
     cdn_deploy_command="tar -czf - DNS/ | ssh -i "+args.keyfile+" "+args.username+"@"+dns_server+" tar -xzf -"
     subprocess.call(cdn_deploy_command,shell=True)
+    #Make DNS executable
+    dns_executable_command = "ssh -i " + args.keyfile + " " + args.username + "@" + dns_server + "  chmod 755 DNS/dnsserver"
+    subprocess.call(dns_executable_command, shell=True)
 
     thread_list=[]
     for server in http_servers:
@@ -40,24 +43,20 @@ def main(args):
     for thread in thread_list:
         thread.join()
 
-    '''
-    #Clear
-    for server in http_servers:
-        http_clear_command = "ssh -i " + args.keyfile + " " + args.username + "@" + server + " rm -rf HTTP"
-        subprocess.call(http_clear_command, shell=True)
-    '''
-
 
 
 
 
 def deploy_http(server):
-    # Clear CDN
+    # Clear HTTP
     http_clear_command = "ssh -i " + args.keyfile + " " + args.username + "@" + server + "  rm -rf HTTP"
     subprocess.call(http_clear_command, shell=True)
-    # Deploy CDN
+    # Deploy HTTP
     http_deploy_command = "tar -czf - HTTP/ | ssh -i " + args.keyfile + " " + args.username + "@" + server + " tar -xzf -"
     subprocess.call(http_deploy_command, shell=True)
+    #Make HTTP executable
+    http_executable_command = "ssh -i " + args.keyfile + " " + args.username + "@" + server + "  chmod 755 HTTP/httpserver"
+    subprocess.call(http_executable_command, shell=True)
 
 
 if __name__=="__main__":
