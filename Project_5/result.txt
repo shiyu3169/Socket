@@ -1,8 +1,0 @@
-Traceback (most recent call last):
-  File "HTTP/update_cache.py", line 62, in <module>
-    main()
-  File "HTTP/update_cache.py", line 55, in main
-    build_queue()
-  File "HTTP/update_cache.py", line 15, in build_queue
-    f = open('~/HTTP/pathname', 'rb')
-IOError: [Errno 2] No such file or directory: '~/HTTP/pathname'

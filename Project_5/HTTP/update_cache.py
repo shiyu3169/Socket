@@ -12,7 +12,7 @@ threads = []
 
 def build_queue():
     # Download and compress based on pathname
-    f = open('pathname', 'rb')
+    f = open('./HTTP/pathname', 'rb')
     line = f.readline()
     while line != "":
         name = line.strip()
@@ -25,6 +25,7 @@ def download(name):
     conn.debuglevel = 0
     conn.request("GET", '/wiki/' + name, headers={'User-Agent': 'Python httplib'})
     reply = conn.getresponse()
+    content = None
     if reply.status == 200 or reply.status == 404:
         content = reply.read()
     return content
@@ -32,7 +33,7 @@ def download(name):
 
 def compress(name):
     str_object2 = zlib.compress(download(name), 9)
-    f = open('./zip/' + name + '.Z', 'wb')
+    f = open('./HTTP/zip/' + name + '.Z', 'wb')
     f.write(str_object2)
     f.close()
 

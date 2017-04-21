@@ -57,6 +57,10 @@ def deploy_http(server):
     #Make HTTP executable
     http_executable_command = "ssh -i " + args.keyfile + " " + args.username + "@" + server + "  chmod 755 HTTP/httpserver"
     subprocess.call(http_executable_command, shell=True)
+    #Download cache files
+    #download_command="ssh -i " + args.keyfile + " " + args.username + "@" + server + " nohup python HTTP/update_cache.py>download_result.txt"
+    #subprocess.call(download_command, shell=True)
+
 
 
 if __name__=="__main__":
