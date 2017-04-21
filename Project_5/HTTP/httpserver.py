@@ -30,7 +30,7 @@ def grim_reaper(signum, frame):
 
 def add_pathname_to_queue(queue):
     # Put names in pathname2 into queue
-    f = open('./HTTP/pathname2', 'rb')
+    f = open('pathname2', 'rb')
     line = f.readline()
 
     while line != "":
@@ -59,7 +59,7 @@ class Server:
         self.thread.setDaemon(True)
 
         # Add disk files' names into set
-        f = open('./HTTP/pathname', 'rb')
+        f = open('pathname', 'rb')
         line = f.readline()
         while line != "":
             self.disk_path_names.append(line.strip())
@@ -84,7 +84,7 @@ class Server:
             if name == "":
                 name = "Main_Page"
             if name in self.disk_path_names:
-                str_object1 = open('./HTTP/zip/' + name + '.Z', 'rb').read()
+                str_object1 = open('./zip/' + name + '.Z', 'rb').read()
                 str_object2 = zlib.decompress(str_object1)
                 self.reply(str_object2)
             elif name in self.memory_path_to_file:
