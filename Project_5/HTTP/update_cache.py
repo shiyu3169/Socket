@@ -7,6 +7,8 @@ from threading import Thread
 origin = "ec2-54-166-234-74.compute-1.amazonaws.com"
 port = 8080
 web_names = Queue.Queue()
+threads = []
+
 
 def build_queue():
     # Download and compress based on pathname
@@ -20,10 +22,10 @@ def build_queue():
 
 def download(name):
     conn = httplib.HTTPConnection(origin, port)
-    conn.debuglevel = 1
+    conn.debuglevel = 0
     conn.request("GET", '/wiki/' + name, headers={'User-Agent': 'Python httplib'})
     reply = conn.getresponse()
-    if reply.status != 300 or reply.status != 301:
+    if reply.status == 200 or reply.status == 404:
         content = reply.read()
     return content
 
@@ -45,13 +47,15 @@ def threaded_function(num_threads):
         worker = Thread(target=compress_forever)
         worker.setDaemon(True)
         worker.start()
-    worker.join()
+        threads.append(worker)
 
 
 def main():
     # build a queue of names
     build_queue()
     threaded_function(10)
+    for thread in threads:
+        thread.join()
 
 
 if __name__=="__main__":

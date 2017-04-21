@@ -69,13 +69,13 @@ class Server:
     def add_pages_to_memory(self):
         #save 299 pages into cache2
         while not self.queue.empty():
-            name = self.queue.get()
+            path = self.queue.get()
             conn = httplib.HTTPConnection(self.origin, 8080)
             conn.debuglevel = 0
-            conn.request("GET", "/wiki/" + name, headers={'User-Agent': 'Python httplib'})
+            conn.request("GET", "/wiki/" + path, headers={'User-Agent': 'Python httplib'})
             reply = conn.getresponse()
             response = zlib.compress(reply.read(), 9)
-            self.memory_path_to_file[name] = response
+            self.memory_path_to_file[path] = response
 
     def do_GET(self):
         # Function to handle get request
