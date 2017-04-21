@@ -1,0 +1,120 @@
+Exception in thread Thread-1:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Main_Page.Z'
+
+Exception in thread Thread-7:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Pornography.Z'
+
+Exception in thread Thread-4:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Bruno_Mars.Z'
+
+Exception in thread Thread-3:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Climatic_Research_Unit_email_controversy.Z'
+
+Exception in thread Thread-2:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Philip_Seymour_Hoffman.Z'
+
+Exception in thread Thread-6:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/2014_Winter_Olympics.Z'
+
+Exception in thread Thread-5:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Java.Z'
+
+Exception in thread Thread-8:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Satya_Nadella.Z'
+
+Exception in thread Thread-9:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Russell_Wilson.Z'
+
+Exception in thread Thread-10:
+Traceback (most recent call last):
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 810, in __bootstrap_inner
+    self.run()
+  File "/System/Library/Frameworks/Python.framework/Versions/2.7/lib/python2.7/threading.py", line 763, in run
+    self.__target(*self.__args, **self.__kwargs)
+  File "HTTP/update_cache.py", line 42, in compress_forever
+    compress(web_names.get())
+  File "HTTP/update_cache.py", line 35, in compress
+    f = open('./zip/' + name + '.Z', 'wb')
+IOError: [Errno 2] No such file or directory: './zip/Sochi.Z'
+
