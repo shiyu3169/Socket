@@ -26,9 +26,9 @@ def download(name):
     conn.request("GET", '/wiki/' + name, headers={'User-Agent': 'Python httplib'})
     reply = conn.getresponse()
     content = None
-    if reply.status == 200 or reply.status == 404:
+    if reply.status < 300 or (reply.status >= 400 and reply.status < 500):
         content = reply.read()
-    if reply.status == 500:
+    if reply.status >= 500:
         web_names.put(name)
     return content
 
@@ -58,7 +58,7 @@ def threaded_function(num_threads):
 def main():
     # build a queue of names
     build_queue()
-    threaded_function(10)
+    threaded_function(3)
     for thread in threads:
         thread.join()
 
