@@ -28,14 +28,18 @@ def download(name):
     content = None
     if reply.status == 200 or reply.status == 404:
         content = reply.read()
+    if reply.status == 500:
+        web_names.put(name)
     return content
 
 
 def compress(name):
-    str_object2 = zlib.compress(download(name), 9)
-    f = open('./HTTP/zip/' + name + '.Z', 'wb')
-    f.write(str_object2)
-    f.close()
+    file = download(name)
+    if file != "":
+        str_object2 = zlib.compress(file, 9)
+        f = open('./HTTP/zip/' + name + '.Z', 'wb')
+        f.write(str_object2)
+        f.close()
 
 
 def compress_forever():
