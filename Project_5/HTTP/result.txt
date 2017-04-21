@@ -1,0 +1,10 @@
+Traceback (most recent call last):
+  File "update_cache.py", line 62, in <module>
+    main()
+  File "update_cache.py", line 58, in main
+    thread.join()
+  File "/usr/lib/python2.7/threading.py", line 949, in join
+    self.__block.wait()
+  File "/usr/lib/python2.7/threading.py", line 339, in wait
+    waiter.acquire()
+KeyboardInterrupt
