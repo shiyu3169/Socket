@@ -26,6 +26,7 @@ def main(max_clients, max_conns):
     socks = []
     for client_num in range(max_clients):
         pid = os.fork()
+        random_number = randint(0, len(names) - 1)
         if pid == 0:
             for connection_num in range(max_conns):
                 '''
@@ -33,7 +34,6 @@ def main(max_clients, max_conns):
                 sock.connect(SERVER_ADDRESS)
                 sock.sendall(REQUEST)
                 socks.append(sock)'''
-                random_number=randint(0,len(names)-1)
                 os.system("wget ec2-54-166-234-74.compute-1.amazonaws.com:8080/wiki/"+names[random_number])
                 print(connection_num)
                 os._exit(0)
