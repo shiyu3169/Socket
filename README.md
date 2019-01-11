@@ -1,5 +1,7 @@
 # Socket
 
+[![Build Status](https://travis-ci.org/joemccann/dillinger.svg?branch=master)](https://github.com/shiyu3169/socket)
+
 ## Approach
 This project is a simple socket project. I implemented a client program which communicates with a server using sockets. It only takes me few hours to make the code work, but I spend much more time to update it and learn from it. The first version of the project was just a main function doing everything linearly, which is hard to read and debug. After the code works, I seperated code into different functions to make it clean and easy to test. Next, I applied but Python's built-in arg-parse library to handle the command line inputs. It is much simpler and clear. Also, I applied regular expression library, re to parse the incoming message from server to make the application stronger and smarter. I believe this is the correct way to handle messages. 
 
