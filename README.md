@@ -12,3 +12,6 @@ The first challenge I met was learning Python. I only had few expierences of Pyt
 Initially I tested my code by running it with different inputs in Makefile. Then I wrote unite tests for each function to make sure every parts is working appropriately.
 
 According to the requirements mentioned in Piazza (https://piazza.com/class/ixadkvtp7e41so?cid=44), I can only submit 4 files (client, readme, Makefile, secret_flag for this project. Test file available upon request.
+
+## Run
+Using python 3 to run the client file
